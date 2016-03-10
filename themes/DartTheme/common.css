@@ -1,0 +1,499 @@
+@import url("fonts/helvetica_neue/style.css");
+@import url("fonts/liberation_sans/style.css");
+@import url("panels/DartPanel/style.css");
+@import url("dijit-css/Checkbox.css");
+@import url("dijit-css/Slider.css");
+@import url("dijit-css/Common.css");
+@import url("dijit-css/Select.css");
+@import url("dijit-css/Menu.css");
+body,
+html {
+  font-family: 'HelveticaNeue';
+  font-weight: normal;
+}
+
+strong {
+  font-family: 'HelveticaNeue';
+}
+/* Esri Jvascript API*/
+
+.esriControlsBR {
+  bottom: 62px;
+  left: 10px;
+  right: auto;
+  width: auto;
+  z-index: 0 !important;
+}
+
+.logo-med {
+  position: absolute;
+  left: 0px;
+  bottom: 15px;
+}
+
+.esriSimpleSliderTL {
+  top: 0px;
+  left: 0px;
+  width: 56px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  display: none;
+}
+/* Widgets */
+
+.jimu-widget-frame.jimu-container {
+  overflow-x: auto;
+  overflow-y: auto;
+  position: relative;
+  padding: 10px;
+  color: #ffffff;
+  background-color: transparent;
+  width: auto;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+}
+
+.jimu-widget-frame.jimu-container * {
+  color: #ffffff !important;
+  outline: none;
+}
+
+.jimu-input {
+  height: 30px;
+  background: #393939;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid #a6a6a6;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+  padding: 5px;
+  margin: 0;
+  border-radius: 2px;
+  font-size: 14px;
+}
+
+.jimu-btn {
+  cursor: pointer;
+  min-width: 70px;
+  display: inline-block;
+  padding: 0 10px !important;
+  line-height: 33px;
+  font-size: 14px;
+  text-align: center;
+  vertical-align: middle;
+  background-color: #262626;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -o-border-radius: 5px;
+  -ms-border-radius: 5px;
+  border-radius: 5px;
+  border: none !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jimu-btn:hover {
+  background-color: #131313;
+  background-color: rgba(0, 0, 0, 0.75) !important;
+}
+
+.jimu-btn.jimu-state-disabled {
+  background-color: #797979;
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  color: #d8d8d8 !important;
+}
+
+.jimu-checkbox .checkbox {
+  border: 1px solid #a6a6a6;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  background-color: #393939;
+  background-color: rgba(0, 0, 0, 0.25) !important;
+}
+
+.jimu-checkbox .checkbox.checked {
+  border: 1px solid #a6a6a6;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  background-image: url(dijit-css/icons/Icon_Checkmark_16.png) !important;
+}
+
+.claro .dijitTextBox {
+  height: 30px;
+  border-color: #a6a6a6;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.claro .dijitComboBox .dijitButtonNode {
+  color: #ffffff !important;
+  border-color: #a6a6a6;
+  border-color: rgba(255, 255, 255, 0.5);
+  background-color: #262626;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.dijitButtonNode {
+  border: none !important;
+}
+/* About */
+/* Analysis */
+
+.jimu-widget-analysis .tools-table-tr.even,
+.jimu-widget-analysis .tools-table-tr.odd,
+.jimu-widget-analysis .tools-table-tr.disabled {
+  background-color: #393939;
+  background-color: rgba(0, 0, 0, 0.25) !important;
+  border-bottom: 1px solid #262626;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.jimu-widget-analysis .tools-table-tr.disabled {
+  filter: alpha(opacity=30);
+  -moz-opacity: 0.30;
+  -khtml-opacity: 0.30;
+  opacity: 0.30;
+}
+
+.jimu-widget-analysis .tools-table-tr:hover {
+  background-color: #262626;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.jimu-widget-analysis .tools-table-tr.disabled:hover {
+  background-color: #393939;
+  background-color: rgba(0, 0, 0, 0.25) !important;
+}
+/* Basemap Gallery */
+
+.esriBasemapGalleryNode {
+  margin: 3px 10px 3px 10px !important;
+}
+
+.esriBasemapGalleryThumbnail {
+  width: 80px !important;
+  height: 60px !important;
+  border: 1px solid #fff;
+  margin: 0;
+  -moz-box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.esriBasemapGalleryLabelContainer {
+  height: 16px !important;
+  line-height: 16px !important;
+}
+/* Bookmark */
+
+.jimu-widget-bookmark .btn-add {
+  background-color: #262626;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.bookmark-list > .jimu-state-selected {
+  background: transparent !important;
+}
+
+.bookmark-list > .jimu-state-selected .node-label {
+  background-color: #3d3d3d;
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.jimu-widget-bookmark .jimu-btn {
+  width: 100px !important;
+}
+/* Chart */
+
+.jimu-widget-chart .chart-results .results-container {
+  top: 30px !important;
+}
+
+.jimu-widget-chart-preview .results-header {
+  position: absolute !important;
+  bottom: 0px;
+  width: 100%;
+  height: 33px !important;
+  line-height: 20px;
+}
+
+.jimu-widget-chart-preview .chart-section .arrow:hover {
+  background-color: #393939;
+  background-color: rgba(0, 0, 0, 0.25) !important;
+}
+/* Directions */
+
+.simpleDirections .esriGeocoder input {
+  background: transparent !important;
+}
+
+.simpleDirections .esriGeocoderResults {
+  background: #131313;
+  background: rgba(0, 0, 0, 0.75) !important;
+}
+
+.simpleDirections .esriGeocoderResults ul {
+  border: none !important;
+}
+
+.simpleDirections .esriGeocoderResult:hover,
+.simpleDirections .esriGeocoderResultEven:focus,
+.simpleDirections .esriGeocoderResultOdd:focus {
+  background-color: #000000 !important;
+}
+
+.simpleDirections .esriActivateButton {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.simpleDirections .esriDirectionsButton,
+.simpleDirections .esriDirectionsButton:hover {
+  padding: 0 10px !important;
+  line-height: 33px !important;
+  font-size: 14px;
+  border: none !important;
+  background-color: #262626;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.simpleDirections .esriStopsClearDirections {
+  padding: 0px 10px !important;
+  line-height: 33px !important;
+  font-size: 14px;
+}
+
+.simpleDirections .arcgisSearch .searchGroup .searchInput {
+  border-bottom: none !important;
+}
+
+.simpleDirections .esriDirectionsPressedButton,
+.simpleDirections .esriDirectionsPressedButton:hover {
+  background-color: #797979;
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  box-shadow: none !important;
+}
+
+.tmTypeName {
+  color: #aeaeae !important;
+}
+
+.simpleDirections .esriResultsContainer {
+  background: transparent !important;
+}
+
+.simpleDirections .esriRouteZoom:hover,
+.simpleDirections .esriRouteZoom:focus {
+  background: #3d3d3d;
+  background: rgba(0, 0, 0, 0.2);
+}
+/* Draw */
+
+.draw-item {
+  background-color: #262626;
+  background-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.jimu-draw-box .draw-item.jimu-state-active,
+.jimu-draw-box .draw-item:hover {
+  background-color: #8a8a8a; !important;
+  background-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.jimu-widget-draw .operations {
+  margin-top: 10px !important;
+  /*text-align: left !important;*/
+}
+
+.jimu-symbol-chooser {
+  width: 100% !important;
+}
+/* Editor */
+
+.jimu-widget-edit * {
+  background-color: transparent !important;
+}
+
+.jimu-widget-edit .esriTemplatePicker * {
+  border: none !important;
+}
+
+.claro .jimu-widget-edit .dijitToolbar {
+  padding: 5px 0;
+  background: transparent !important;
+  background-image: none !important;
+  background-color: #c1c1c1 !important;
+  border: none !important;
+}
+
+.claro .jimu-widget-edit .dijitToolbar .dijitButtonHover .dijitButtonNode,
+.claro .jimu-widget-edit .dijitToolbar .dijitDropDownButtonHover .dijitButtonNode,
+.claro .jimu-widget-edit .dijitToolbar .dijitToggleButtonHover .dijitButtonNode,
+.claro .jimu-widget-edit .dijitToolbar .dijitComboButtonHover .dijitButtonNode {
+  background-image: none !important;
+  background-color: #262626;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+/* GP */
+
+.jimu-widget-geoprocessing {
+  height: 100%;
+  margin: 0px -10px !important;
+  font-size: 14px;
+}
+
+.jimu-tab>.jimu-viewstack {
+  background-color: #3d3d3d;
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.jimu-tab>.control>.tab {
+  background-color: #707070;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: none !important;
+}
+
+.jimu-tab>.control>.tab.jimu-state-selected {
+  background-color: #3d3d3d;
+  background-color: rgba(0, 0, 0, 0.2) !important;
+  border: none !important;
+}
+/* Layer List */
+
+.jimu-widget-layerList .layer-row,
+.jimu-widget-layerList .layer-row-selected {
+  background: transparent !important;
+}
+
+.jimu-dropmenu>.jimu-icon-btn {
+  border: transparent !important;
+  background-color: #393939;
+  background-color: rgba(0, 0, 0, 0.25) !important;
+}
+
+.drop-menu,
+.jimu-widget-layerList .popup-menu-transparency-body {
+  outline: none !important;
+  outline-style: 1px solid transparent !important;
+  background-color: #131313;
+  background-color: rgba(0, 0, 0, 0.75) !important;
+}
+
+.jimu-dropmenu .menu-item-line {
+  border: 1px solid #1e1e1e;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.jimu-dropmenu>.drop-menu {
+  border: none !important;
+  background-color: #131313;
+  background-color: rgba(0, 0, 0, 0.75) !important;
+}
+/* Measurement */
+
+.esriMeasurementButtonContainer {
+  background-color: #3d3d3d;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.esriMeasurement .esriButton .dijitButtonNode {
+  height: 32px !important;
+  width: 32px !important;
+  padding: 0px !important;
+  border-radius: 2px;
+}
+
+.esriMeasurement .locationIcon {
+  background-image: url("dijit-css/icons/Icon_Measure_Point_16.png") !important;
+  background-position: center center;
+  background-repeat: no-repeat;
+  width: 32px;
+  height: 32px;
+}
+
+.esriMeasurement .distanceIcon {
+  background-image: url("dijit-css/icons/Icon_Measure_Distance_16.png") !important;
+  background-position: center center;
+  background-repeat: no-repeat;
+  width: 32px;
+  height: 32px;
+}
+
+.esriMeasurement .areaIcon {
+  background-image: url("dijit-css/icons/Icon_Measure_Area_16.png") !important;
+  background-position: center center;
+  background-repeat: no-repeat;
+  width: 32px;
+  height: 32px;
+}
+
+.esriMeasurement .esriButtonChecked .dijitButtonNode {
+  background-image: none !important;
+  background-color: #797979;
+  background-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.esriMeasurement .esriButtonHover .dijitButtonNode {
+  background-image: none !important;
+  background-color: #262626;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.esriMeasurement .esriButtonActiveFocused .dijitButtonNode {
+  background-image: none !important;
+  background-color: #262626;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.esriMeasurement .dijitButtonText {
+  height: 32px;
+  padding: 0px 10px;
+  font-size: 14px;
+  line-height: 32px;
+}
+
+.esriMeasurement .esriMeasurementResultLabel {
+  margin: 5px !important;
+  padding: 5px !important;
+  border-bottom: thin solid #3d3d3d;
+  border-bottom: thin solid rgba(0, 0, 0, 0.2) !important;
+}
+/* Print */
+
+.claro .jimu-widget-print .dijitButton .dijitButtonNode,
+.claro .jimu-widget-print .dijitDropDownButton .dijitButtonNode,
+.claro .jimu-widget-print .dijitComboButton .dijitButtonNode,
+.claro .jimu-widget-print .dijitToggleButton .dijitButtonNode {
+  border: none !important;
+  padding: 4px !important;
+  color: #ffffff !important;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  background-color: #262626;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  -webkit-select: none;
+}
+
+.claro .jimu-widget-print .dijitSelect .dijitButtonNode {
+  background-color: #262626;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Stream */
+.jimu-widget-stream .controlButton{
+  background-color: rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+/* jimu-symbol-chooser */
+.jimu-symbol-chooser .text-symbol-section .text-input{
+  background-color: #383838;
+}

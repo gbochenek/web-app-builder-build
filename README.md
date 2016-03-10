@@ -1,6 +1,8 @@
 # web-app-builder-build
 Example of using the Dojo Build with an ArcGIS Web App Builder Application.
 
+Adapted from build scripts provided by @qlqllu at https://geonet.esri.com/docs/DOC-3795
+
 # Sample Build Run
 1. Ensure npm, Node.js, and Java are installed.
 2. Open a command prompt to the root directory.

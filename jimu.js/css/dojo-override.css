@@ -113,7 +113,7 @@ table.dijitDownArrowButton.dijitSelect.restrict-select-width > tbody > tr > td.d
 
 /* dijitComboBox */
 .claro .dijitComboBox>div.dijitArrowButton.dijitDownArrowButton{
-  width:20px;
+  width: 18px;
   height: 100%;
 }
 
@@ -123,3 +123,18 @@ table.dijitDownArrowButton.dijitSelect.restrict-select-width > tbody > tr > td.d
   display: inline-block;
   height: 100% !important;
 }
+
+/* dijitSelect */
+.claro .dijitSelect .dijitReset.dijitButtonNode.dijitArrowButton.dijitDownArrowButton.dijitArrowButtonContainer{
+  width: 20px;
+}
+
+/* dgrid*/
+.jimu-rtl .dgrid-rtl-swap .dgrid-header-row {
+    right: 0;
+    left: 17px;
+}
+ .jimu-rtl .dgrid-cell {
+  border-right-style: none;
+  border-left: solid 1px #ccc;
+ }

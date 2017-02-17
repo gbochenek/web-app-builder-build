@@ -22,9 +22,10 @@ define([
   'dojo/has',
   'dojo/Deferred',
   'jimu/utils',
+  'esri/lang',
   'esri/tasks/QueryTask',
   'esri/tasks/query'],
-  function(exports, lang, array, html, has, Deferred, jimuUtils, QueryTask, Query) {
+  function(exports, lang, array, html, has, Deferred, jimuUtils, esriLang, QueryTask, Query) {
     /*
     ** filename String no file extension
     ** datas Object[]
@@ -49,6 +50,7 @@ define([
     **   formatNumber: Boolean. if true localize number type field
     **   formatDate: Boolean. if true localize date type field
     **   formatCodedValue: Boolean. if true use description instead of codedvalue
+    **   popupInfo: https://developers.arcgis.com/javascript/jshelp/intro_popuptemplate.html
     ** }
     */
     exports.exportCSVFromFeatureLayer = function(filename, layer, options) {
@@ -56,6 +58,7 @@ define([
       var exportOptions = {
         datas: options.datas,
         fromClient: options.fromClient,
+        withGeometry: options.withGeometry,
         outFields: options.outFields,
         filterExpression : options.filterExpression
       };
@@ -63,7 +66,8 @@ define([
         var formattedOptions = {
           formatNumber: options.formatNumber,
           formatDate: options.formatDate,
-          formatCodedValue: options.formatCodedValue
+          formatCodedValue: options.formatCodedValue,
+          popupInfo: options.popupInfo
         };
         return exports._formattedData(layer, result, formattedOptions)
           .then(function(formattedResult) {
@@ -85,6 +89,7 @@ define([
     **   formatNumber: Boolean. if true localize number type field
     **   formatDate: Boolean. if true localize date type field
     **   formatCodedValue: Boolean. if true use description instead of codedvalue
+    **   popupInfo: https://developers.arcgis.com/javascript/jshelp/intro_popuptemplate.html
     ** }
     */
     exports.exportCSVByAttributes = function(filename, definition, attributes, options) {
@@ -106,6 +111,7 @@ define([
     **   formatNumber: Boolean. if true localize number type field
     **   formatDate: Boolean. if true localize date type field
     **   formatCodedValue: Boolean. if true use description instead of codedvalue
+    **   popupInfo: https://developers.arcgis.com/javascript/jshelp/intro_popuptemplate.html
     ** }
     */
     exports.exportCSVByGraphics = function(filename, definition, graphics, options) {
@@ -158,26 +164,11 @@ define([
     };
 
     exports._isIE11 = function() {
-      var iev = 0;
-      var ieold = (/MSIE (\d+\.\d+);/.test(navigator.userAgent));
-      var trident = !!navigator.userAgent.match(/Trident\/7.0/);
-      var rv = navigator.userAgent.indexOf("rv:11.0");
-
-      if (ieold) {
-        iev = Number(RegExp.$1);
-      }
-      if (navigator.appVersion.indexOf("MSIE 10") !== -1) {
-        iev = 10;
-      }
-      if (trident && rv !== -1) {
-        iev = 11;
-      }
-
-      return iev === 11;
+      return jimuUtils.has('ie') === 11;
     };
 
     exports._isEdge = function() {
-      return /Edge\/12/.test(navigator.userAgent);
+      return jimuUtils.has('edge');
     };
 
     exports._getDownloadUrl = function(text) {
@@ -235,10 +226,46 @@ define([
       var def = new Deferred();
       var _outFields = null;
       var data = options.datas;
+      var withGeometry = options.withGeometry;
 
       _outFields = options.outFields;
       if (!_outFields || !_outFields.length) {
         _outFields = layer.fields;
+      }
+      _outFields = lang.clone(_outFields);
+
+      if (withGeometry && !(data && data.length > 0)) {// only for fromClient or server
+        var name = "";
+        if (_outFields.indexOf('x') !== -1) {
+          name = '_x';
+        } else {
+          name = 'x';
+        }
+        _outFields.push({
+          'name': name,
+          alias: name,
+          format: {
+            'digitSeparator': false,
+            'places': 6
+          },
+          show: true,
+          type: "esriFieldTypeDouble"
+        });
+        if (_outFields.indexOf('y') !== -1) {
+          name = '_y';
+        } else {
+          name = 'y';
+        }
+        _outFields.push({
+          'name': name,
+          alias: name,
+          format: {
+            'digitSeparator': false,
+            'places': 6
+          },
+          show: true,
+          type: "esriFieldTypeDouble"
+        });
       }
 
       if (data && data.length > 0) {
@@ -247,9 +274,10 @@ define([
           'outFields': _outFields
         });
       } else {
+        // var g = null;
         if (options.fromClient) {
           data = array.map(layer.graphics, function(graphic) {
-            return graphic.attributes;
+            return withGeometry ? getAttrsWithXY(graphic) : lang.clone(graphic);
           });
           def.resolve({
             'data': data || [],
@@ -289,10 +317,10 @@ define([
         query.outFields = ["*"];
       }
 
-      query.returnGeometry = false;
+      query.returnGeometry = options.withGeometry;
       qt.execute(query, function(results) {
         var data = array.map(results.features, function(feature) {
-          return feature.attributes;
+          return getAttrsWithXY(feature);
         });
         def.resolve(data);
       }, function(err) {
@@ -340,13 +368,26 @@ define([
 
     exports._getExportValue = function(data, field, pk, typeIdField,
       typeData, types, formattedOptions) {
+      var pInfos = formattedOptions.popupInfo;
+      function getFormatInfo(fieldName) {
+        if (pInfos && esriLang.isDefined(pInfos.fieldInfos)) {
+          for (var i = 0, len = pInfos.fieldInfos.length; i < len; i++) {
+            var f = pInfos.fieldInfos[i];
+            if (f.fieldName === fieldName) {
+              return f.format;
+            }
+          }
+        }
+
+        return null;
+      }
       var isDomain = !!field.domain && formattedOptions.formatCodedValue;
       var isDate = field.type === "esriFieldTypeDate" && formattedOptions.formatDate;
       var isOjbectIdField = pk && (field.name === pk);
       var isTypeIdField = typeIdField && (field.name === typeIdField);
 
       if (isDate) {
-        return jimuUtils.fieldFormatter.getFormattedDate(data);
+        return jimuUtils.fieldFormatter.getFormattedDate(data, getFormatInfo(field.name));
       }
       if (isTypeIdField) {
         return jimuUtils.fieldFormatter.getTypeName(data, types);
@@ -365,7 +406,7 @@ define([
 
           if (typeCheck && typeCheck.domains &&
             typeCheck.domains[field.name] && typeCheck.domains[field.name].codedValues) {
-            codeValue = jimuUtils.fieldFormatter.getFormattedCodedValue(
+            codeValue = jimuUtils.fieldFormatter.getCodedValue(
               typeCheck.domains[field.name],
               data
             );
@@ -376,4 +417,24 @@ define([
 
       return data;
     };
+
+    function getAttrsWithXY(graphic) {
+      var attrs = lang.clone(graphic.attributes);
+      var geometry = graphic.geometry;
+      if (geometry && geometry.type === 'point') {
+        if ('x' in attrs) {
+          attrs._x = geometry.x;
+        } else {
+          attrs.x = geometry.x;
+        }
+
+        if ('y' in attrs) {
+          attrs._y = geometry.y;
+        } else {
+          attrs.y = geometry.y;
+        }
+      }
+
+      return attrs;
+    }
   });

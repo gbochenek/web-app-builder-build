@@ -11,12 +11,12 @@
   border-bottom: 1px solid rgba(255,255,255,0.4);
 }
 .jimu-widget-coordinate .coordinate-locate{
-  width: 18px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   background: url(images/locate.png) center no-repeat;
 }
 .jimu-widget-coordinate .coordinate-locate-container{
-  width: 18px;
+  width: 17px;
   height: 17px;
   border-right: 1px solid rgba(255,255,255,0.4);
 }

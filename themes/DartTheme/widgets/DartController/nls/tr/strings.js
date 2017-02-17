@@ -1,5 +1,3 @@
-﻿define(
-   ({
-    _widgetLabel: "Dart Denetleyici"
-  })
-);
+define({
+  "_widgetLabel": "Dart Denetleyici"
+});

@@ -73,8 +73,8 @@ define([
 
     _getDropMenuPosition: function() {
       return {
-        top: "28px",
-        right: "4px",
+        top: "40px",
+        right: "0px",
         zIndex: 1
       };
     },
@@ -83,7 +83,8 @@ define([
       return {
         top: "28px",
         //left: "-107px"
-        left: -1 * html.getStyle(this.transparencyDiv, 'width') + 'px'
+        //left: -1 * html.getStyle(this.transparencyDiv, 'width') + 'px'
+        right: "2px"
       };
     },
 
@@ -140,6 +141,7 @@ define([
       if (displayItemNodes.length === 0) {
         html.addClass(this.dropMenuNode, "no-border");
       } else {
+        html.removeClass(this.dropMenuNode, "no-border");
         if (html.hasClass(displayItemNodes[displayItemNodes.length - 1], 'menu-item-line')) {
           html.addClass(displayItemNodes[displayItemNodes.length - 1], "menu-item-hidden");
         }
@@ -160,7 +162,7 @@ define([
 
     selectItem: function(item, evt) {
       var found = false;
-      for (var i = 1; i < this._deniedItems.length; i++) {
+      for (var i = 0; i < this._deniedItems.length; i++) {
         if (this._deniedItems[i].key === item.key) {
           found = true;
           break;
@@ -227,9 +229,9 @@ define([
       }
       domStyle.set(this.transparencyDiv, "top", this._getTransNodePosition().top);
       if (isRTL) {
-        domStyle.set(this.transparencyDiv, "right", this._getTransNodePosition().left);
+        domStyle.set(this.transparencyDiv, "left", this._getTransNodePosition().right);
       } else {
-        domStyle.set(this.transparencyDiv, "left", this._getTransNodePosition().left);
+        domStyle.set(this.transparencyDiv, "right", this._getTransNodePosition().right);
       }
       domStyle.set(this.transparencyDiv, "display", "block");
     },

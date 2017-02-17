@@ -1,5 +1,3 @@
-﻿define(
-   ({
-    _widgetLabel: "Nuolisäädin"
-  })
-);
+define({
+  "_widgetLabel": "Nuolisäädin"
+});

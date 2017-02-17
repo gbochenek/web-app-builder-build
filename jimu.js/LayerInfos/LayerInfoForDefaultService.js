@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// Copyright © 2014 Esri. All Rights Reserved.
+// Copyright © 2014 - 2016 Esri. All Rights Reserved.
 //
 // Licensed under the Apache License Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,17 +20,28 @@ define([
   'dojo/_base/lang',
   'dojo/Deferred',
   'dojo/dom-construct',
-  'dojo/promise/all',
   './LayerInfoForDefault',
-  './LayerInfos',
   'esri/layers/FeatureLayer',
-  'esri/layers/RasterLayer'
-], function(declare, array, lang, Deferred, domConstruct, all,
-LayerInfoForDefault, LayerInfos, FeatureLayer, RasterLayer) {
+  'esri/layers/RasterLayer',
+  'esri/layers/StreamLayer',
+  'esri/layers/ArcGISImageServiceLayer',
+  'esri/layers/ArcGISImageServiceVectorLayer'
+], function(declare, array, lang, Deferred, domConstruct,
+LayerInfoForDefault, FeatureLayer, RasterLayer, StreamLayer, ArcGISImageServiceLayer,
+ArcGISImageServiceVectorLayer) {
   return declare(LayerInfoForDefault, {
     _legendsNode: null,
+    _layerObjectLoadingIndicator: null,
 
-    _resetLayerObjectVisiblityBeforeInit: function() {
+    constructor: function() {
+      // init _layerObjectLoadingIndicator
+      this._layerObjectLoadingIndicator = {
+        loadingFlag: false,
+        loadedDef: new Deferred()
+      };
+    },
+
+    _resetLayerObjectVisiblity: function() {
       // do not do anything.
     },
 
@@ -158,32 +169,64 @@ LayerInfoForDefault, LayerInfos, FeatureLayer, RasterLayer) {
     },
 
     //--------------public interface---------------------------
+
     getLayerObject: function() {
       var def = new Deferred();
+      var loadHandle, loadErrorHandle;
       this.getLayerType().then(lang.hitch(this, function(layerType) {
         if(this.layerObject.empty) {
           if(layerType === "RasterLayer") {
             this.layerObject = new RasterLayer(this.layerObject.url);
-          } else  {
-            // default as FeatureLayer
-            this.layerObject = new FeatureLayer(this.layerObject.url);
+          } else if(layerType === "FeatureLayer") {
+            this.layerObject = new FeatureLayer(this.layerObject.url,
+                                                this._getLayerOptionsForCreateLayerObject());
+          } else if(layerType === "StreamLayer") {
+            this.layerObject = new StreamLayer(this.layerObject.url);
+          } else if(layerType === "ArcGISImageServiceLayer") {
+            this.layerObject = new ArcGISImageServiceLayer(this.layerObject.url);
+          } else if(layerType === "ArcGISImageServiceVectorLayer") {
+            this.layerObject = new ArcGISImageServiceVectorLayer(this.layerObject.url);
+          }// else resolve with null at below;
+          // temporary solution, partly supports kind of layerTypes. Todo...***
+          // need a layerObject factory.
+
+          if(this.layerObject.empty) {
+            def.resolve();
+          } else {
+            // consider the condition of layer that there is no 'on' method. Todo...
+            this._layerObjectLoadingIndicator.loadingFlag = true;
+            loadHandle = this.layerObject.on('load', lang.hitch(this, function() {
+              // change layer.name, just for subLayers of mapService now, need move to layerObject factory.
+              // Todo...
+              if(!this.layerObject.empty &&
+                 this.layerObject.name &&
+                 !lang.getObject("_wabProperties.originalLayerName", false, this.layerObject)) {
+                lang.setObject('_wabProperties.originalLayerName',
+                               this.layerObject.name,
+                               this.layerObject);
+                this.layerObject.name = this.title;
+              }
+              this.layerObject.id = this.id;
+              def.resolve(this.layerObject);
+              this._layerObjectLoadingIndicator.loadedDef.resolve(this.layerObject);
+              if(loadHandle.remove) {
+                loadHandle.remove();
+              }
+            }));
+            loadErrorHandle = this.layerObject.on('error', lang.hitch(this, function(/*err*/) {
+              def.resolve(null);
+              this._layerObjectLoadingIndicator.loadedDef.resolve(null);
+              if(loadErrorHandle.remove) {
+                loadErrorHandle.remove();
+              }
+            }));
           }
-          this.layerObject.on('load', lang.hitch(this, function() {
-            def.resolve(this.layerObject);
-          }));
-          this.layerObject.on('error', lang.hitch(this, function(/*err*/) {
-            //def.reject(err);
-            def.resolve(null);
-          }));
-        } else if (!this.layerObject.loaded) {
-          this.layerObject.on('load', lang.hitch(this, function() {
-            def.resolve(this.layerObject);
-          }));
-          this.layerObject.on('error', lang.hitch(this, function(/*err*/) {
-            //def.reject(err);
-            def.resolve(null);
+        } else if(this._layerObjectLoadingIndicator.loadingFlag) {
+          this._layerObjectLoadingIndicator.loadedDef.then(lang.hitch(this, function(layerObject) {
+            def.resolve(layerObject);
           }));
         } else {
+          // layerObject exist at initial.
           def.resolve(this.layerObject);
         }
       }), lang.hitch(this, function() {
@@ -229,6 +272,48 @@ LayerInfoForDefault, LayerInfos, FeatureLayer, RasterLayer) {
         }
       }
       return filter;
+    },
+
+    getFilter: function() {
+      // summary:
+      //   get filter from layerObject.
+      // description:
+      //   return null if does not have or cannot get it.
+      var filter;
+      var mapService = this.originOperLayer.mapService;
+      if(mapService.layerInfo.layerObject &&
+         mapService.layerInfo.layerObject.layerDefinitions) {
+        filter = mapService.layerInfo.layerObject.layerDefinitions[mapService.subId];
+      } else {
+        filter = null;
+      }
+      return filter;
+    },
+
+    setFilter: function(layerDefinitionExpression) {
+      // summary:
+      //   set layer definition expression to layerObject.
+      // paramtter
+      //   layerDefinitionExpression: layer definition expression
+      //   set 'null' to delete layer definition express
+      // description:
+      //   operation will skip if layer not support filter.
+      var layerDefinitions;
+      var mapService = this.originOperLayer.mapService;
+      if(mapService.layerInfo.layerObject &&
+         mapService.layerInfo.layerObject.setLayerDefinitions) {
+        if(mapService.layerInfo.layerObject.layerDefinitions) {
+          layerDefinitions = array.map(mapService.layerInfo.layerObject.layerDefinitions,
+                                       function(layerDefinition) {
+            return layerDefinition;
+          });
+        } else {
+          layerDefinitions = [];
+        }
+
+        layerDefinitions[mapService.subId] = layerDefinitionExpression;
+        mapService.layerInfo.layerObject.setLayerDefinitions(layerDefinitions);
+      }
     },
 
     getLayerType: function() {
@@ -289,14 +374,21 @@ LayerInfoForDefault, LayerInfos, FeatureLayer, RasterLayer) {
       var mapServiceLayerInfo = this.originOperLayer.mapService.layerInfo;
       var mapServiceLayer = mapServiceLayerInfo.layerObject;
       var subId = this.originOperLayer.mapService.subId;
-      this.controlPopupInfo.enablePopup = true;
-      if(mapServiceLayerInfo.controlPopupInfo.infoTemplates) {
-        if(!mapServiceLayer.infoTemplates) {
-          mapServiceLayer.infoTemplates = {};
+
+      return this.loadInfoTemplate().then(lang.hitch(this, function() {
+        if(mapServiceLayerInfo.controlPopupInfo.infoTemplates &&
+          mapServiceLayerInfo.controlPopupInfo.infoTemplates[subId]) {
+          this.controlPopupInfo.enablePopup = true;
+          if(!mapServiceLayer.infoTemplates) {
+            mapServiceLayer.infoTemplates = {};
+          }
+          mapServiceLayer.infoTemplates[subId] =
+            mapServiceLayerInfo.controlPopupInfo.infoTemplates[subId];
+          return true;
+        } else {
+          return false;
         }
-        mapServiceLayer.infoTemplates[subId] =
-          mapServiceLayerInfo.controlPopupInfo.infoTemplates[subId];
-      }
+      }));
     },
 
     disablePopup: function() {
@@ -313,15 +405,21 @@ LayerInfoForDefault, LayerInfos, FeatureLayer, RasterLayer) {
       var mapServiceLayerInfo = this.originOperLayer.mapService.layerInfo;
       var subId = this.originOperLayer.mapService.subId;
       if(mapServiceLayerInfo.controlPopupInfo.infoTemplates &&
-        mapServiceLayerInfo.controlPopupInfo.infoTemplates[subId]) {
-        def.resolve(mapServiceLayerInfo.controlPopupInfo.infoTemplates[subId]);
+        mapServiceLayerInfo.controlPopupInfo.infoTemplates[subId] &&
+        mapServiceLayerInfo.controlPopupInfo.infoTemplates[subId].infoTemplate) {
+        def.resolve(mapServiceLayerInfo.controlPopupInfo.infoTemplates[subId].infoTemplate);
       } else {
         if(!mapServiceLayerInfo.controlPopupInfo.infoTemplates){
           mapServiceLayerInfo.controlPopupInfo.infoTemplates = {};
         }
+        /*
         mapServiceLayerInfo._getSublayerDefinition(subId)
         .then(lang.hitch(this, function(layerDefinition) {
           var popupTemplate = this._getDefaultPopupTemplate(layerDefinition);
+        */
+        this.getLayerObject()
+        .then(lang.hitch(this, function(layerObject) {
+          var popupTemplate = this._getDefaultPopupTemplate(layerObject);
           mapServiceLayerInfo.controlPopupInfo.infoTemplates[subId] = {
             infoTemplate: popupTemplate,
             layerUrl: null
@@ -346,35 +444,26 @@ LayerInfoForDefault, LayerInfos, FeatureLayer, RasterLayer) {
       }
     },
 
-    getRelatedTableInfoArray: function() {
-      var relatedTableInfoArray = [];
-      var def = new Deferred();
+    getScaleRange: function() {
+      var scaleRange;
+      var mapService = this.originOperLayer.mapService;
+      var jsapiLayerInfo = mapService.layerInfo._getJsapiLayerInfoById(mapService.subId);
 
-      var layerObjectDef = this.getLayerObject();
-      var layerInfosDef  = LayerInfos.getInstance(this.map, this.map.itemInfo);
+      if(jsapiLayerInfo &&
+         (jsapiLayerInfo.minScale >= 0) &&
+         (jsapiLayerInfo.maxScale >= 0)) {
+        scaleRange = {
+          minScale: jsapiLayerInfo.minScale,
+          maxScale: jsapiLayerInfo.maxScale
+        };
+      } else {
+        scaleRange = {
+          minScale: 0,
+          maxScale: 0
+        };
+      }
 
-      all({
-        layerObject: layerObjectDef,
-        layerInfos: layerInfosDef
-      }).then(lang.hitch(this, function(result) {
-        if(result.layerObject && result.layerObject.relationships) {
-          var InfoArray;
-          var tableInfoArray;
-          var layerInfoArray = [];
-          this.originOperLayer.mapService.layerInfo.traversal(function(layerInfo) {
-            layerInfoArray.push(layerInfo);
-          });
-          tableInfoArray = result.layerInfos.getTableInfoArray();
-          InfoArray = tableInfoArray.concat(layerInfoArray);
-          relatedTableInfoArray = this._getRelatedTableInfoArray(result.layerObject, InfoArray);
-          def.resolve(relatedTableInfoArray);
-        } else {
-          def.resolve(relatedTableInfoArray);
-        }
-      }));
-
-
-      return def;
+      return scaleRange;
     },
 
     /****************

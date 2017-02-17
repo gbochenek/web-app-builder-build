@@ -1,5 +1,3 @@
-﻿define(
-   ({
-    _widgetLabel: "Στοχείο ελέγχου του Dart"
-  })
-);
+define({
+  "_widgetLabel": "Στοχείο ελέγχου του Dart"
+});

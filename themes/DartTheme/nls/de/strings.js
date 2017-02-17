@@ -1,6 +1,4 @@
-﻿define(
-   ({
-    _themeLabel: "Dart-Design",
-    _layout_default: "Standard-Layout"
-  })
-);
+define({
+  "_themeLabel": "Dart-Design",
+  "_layout_default": "Standard-Layout"
+});

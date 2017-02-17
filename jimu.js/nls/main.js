@@ -1,15 +1,82 @@
 define({
   root: ({
     common: {
+      apply: "Apply",
       ok: "OK",
       cancel: "Cancel",
+      yes: "Yes",
+      no: "No",
       next: "Next",
-      back: "Back"
+      previous: "Previous",
+      back: "Back",
+      selected: "selected",
+      name: "Name",
+      usage: "Usage",
+      settings: "Settings",
+      home: "Home",
+      link: "Link",
+      messages: "Messages",
+      outputs: "Outputs",
+      title: "Title",
+      thumbnail: "Thumbnail",
+      url: "URL",
+      actions: "Actions",
+      layer: "Layer",
+      action: "Action",
+      input: "Input",
+      output: "Output",
+      type: "Type",
+      required: "Required",
+      options: "Options",
+      label: "Label",
+      tooltip: "Tooltip",
+      visible: "Visible",
+      symbol: "Symbol",
+      popup: "Popup",
+      upload: "Upload",
+      execute: "Execute",
+      help: "Help",
+      executing: "Executing",
+      clear: "Clear",
+      error: "Error",
+      zoomTo: "Zoom to",
+      attribute: "Attribute",
+      exports: "Export",
+      check: "Check",
+      save: "Save",
+      close: "Close",
+      deleteText: "Delete",
+      map: "Map",
+      scene: "Scene",
+      reset: "Reset",
+      icon: "Icon",
+      share: "Share",
+      view: "View",
+      newText: "New",
+      edit: "Edit",
+      wkid: "WKID",
+      table: "Table",
+      zoomIn: "Zoom in",
+      zoomOut: "Zoom out",
+      continue1: "Continue",
+      longitude:"Longitude",
+      latitude:"Latitude"
     },
     errorCode: "Code",
     errorMessage: "Message",
     errorDetail: "Detail",
     widgetPlaceholderTooltip: "To set it up, go to Widgets and click corresponding placeholder",
+    fieldStatistics: {
+      selectField: "Select field",
+      statistics: "Statistics",
+      field: "Field",
+      count: "Number of Values",
+      sum: "Sum of Values",
+      min: "Minimum",
+      max: "Maximum",
+      ave: "Average",
+      stddev: "Standard Deviation"
+    },
     symbolChooser: {
       preview: "Preview",
       basic: "Basic",
@@ -37,7 +104,10 @@ define({
       dash: "Dash",
       dot: "Dot",
       dashDot: "Dash Dot",
-      dashDotDot: "Dash Dot Dot"
+      dashDotDot: "Dash Dot Dot",
+      customImage: "Custom Image",
+      chooseFile: "Choose file",
+      noFileChoosen: "No file chosen."
     },
     transparency: {
       opaque: "Opaque",
@@ -176,7 +246,13 @@ define({
         cantParseSQL: "Can't parse the SQL expression."
       },
       caseSensitive: "Case Sensitive",
-      notSupportCaseSensitiveTip: "Hosted services do not support case-sensitive query."
+      notSupportCaseSensitiveTip: "Hosted services do not support case-sensitive query.",
+      setFilterTip: "Please set filter correctly.",
+      listValues: "List Values",
+      cascadeFilterTip: "Only show values filtered by previous expressions.",
+      noneCascadeFilterTip: "All unique values of this field",
+      previousCascadeFilterTip: "Values filtered by previous expressions",
+      allCascadeFilterTip: "Values filtered by all other expressions"
     },
 
     featureLayerSource: {
@@ -234,7 +310,11 @@ define({
       owner: "owner",
       signInTo: "Sign in to",
       lastModified: "Last Modified",
-      moreDetails: "More Details"
+      moreDetails: "More Details",
+      mostRecent: "Most Recent",
+      mostViewed: "Most Viewed",
+      highestRated: "Highest Rated",
+      viewItemDetails: "View item details"
     },
     featureLayerChooserFromPortal: {
       notSupportQuery: "The service doesn't support query."
@@ -261,8 +341,9 @@ define({
       readError: "Failed to read the file.",
       unknowError: "unable to complete operations",
       invalidType: "Invalid file type.",
+      cropImage: "Crop Image",
       exceed: "File size cannot exceed 1024 KB",
-      enableFlash: "TODO: please enable flash.",
+      enableFlash: "Please enable Adobe Flash before browsing to an image.",
       cropWaining: "Please choose a photo that's at least ${width} x ${height} pixels.",
       toolTip: "For the best result, the image should be ${width} pixels wide by ${height} pixels high. Other sizes will be adjusted to fit. Acceptable image formats are: PNG, GIF and JPEG."
     },
@@ -281,9 +362,150 @@ define({
       toCSV: "Export to CSV file",
       toFeatureCollection: "Export to Feature Collection",
       toGeoJSON: "Export to GeoJSON"
-    }
+    },
+    appState: {
+      title: "App State",
+      restoreMap: "Click to restore the map extent and layers visibility where you left off."
+    },
+    featureActions: {
+      featureActions: "Feature actions",
+      ZoomTo: "Zoom to",
+      PanTo: "Pan to",
+      Flash : "Flash",
+      ShowPopup: "Show Pop-up",
+      CreateLayer: "Create Layer",
+      ShowStatistics: "Statistics...",
+      ClearSelection: "Clear Selection",
+      ExportToCSV: "Export to CSV file",
+      ShowSelectedFeature: "Show Selected Features",
+      ExportToFeatureCollection: "Export to Feature Collection",
+      ExportToGeoJSON: "Export to GeoJSON",
+      EditAttributes: "Edit Attributes",
+      AddMarker:"Add a Marker",
+      RemoveMarker:"Remove Marker"
+    },
+    spatialFilterByFeatures: {
+      relatedLayer: "Related layer",
+      selectedFeatures: "Use selected features",
+      drawShapesTip: "Draw shapes to select features",
+      pleaseDrawShapesTip: "Please draw shapes to select features",
+      allFeaturesTip: "All features in the layer",
+      selectFeaturesOrDrawShapesTip: "Please use selected features in this layer or draw shapes on map to limit features."
+    },
+    searchDistance: {
+      applySearchDistance: "Apply a search distance",
+      applySearchDistanceToFeatures: "Apply a search distance to selected features"
+    },
+    units: {
+      miles: "Miles",
+      kilometers: "Kilometers",
+      feet: "Feet",
+      meters: "Meters",
+      yards: "Yards",
+      nauticalMiles: "Nautical Miles"
+    },
+    featureSetChooser: {
+      select: "Select",
+      dragBox: "Drag",
+      dragMouse: "Drag the mouse",
+      selectByRectangle: "Select By Rectangle",
+      selectFeaturesTip: "Select features by dragging box around them on map",
+      newSelectionTip: "Create new selection",
+      addSelectionTip: "Add to selection",
+      removeSelectionTip: "Remove from selection",
+      selectFromCurrentSelectionTip: "Select from the current selection",
+      unselectAllSelectionTip: "Unselect all currently selected features",
+      selectByPolygon: "Select By Polygon",
+      selectByCircle: "Select By Circle",
+      selectByLine: "Select By Line",
+      chooseSelectingTools: "Choose selecting tools",
+      darw: "Draw",
+      drawShap: "Draw a shape"
+    },
+    widgetManager: {
+      createWidgetError: "Create widget error",
+      createWidgetSettingPageError: "Create widget setting page error",
+      loadWidgetResourceError: "Load widget resouce error"
+    },
+    shareOptions: {
+      shareMap: "Choose who can view this app",
+      shareMapTips: "Your app is currently shared with these people",
+      everyone: "Everyone",
+      theseGroups: "These groups"
+    },
+    shareLink: {
+      email: "email",
+      shareEmail: "Email",
+      facebook: "facebook",
+      shareFacebook: "Facebook",
+      twitter: "twitter",
+      shareTwitter: "Twitter",
+      googlePlus: "google+",
+      shareGooglePlus: "Google+",
+      EmbedTips: "Embed this app in a website",
+      shareEmailSubject: "Sharing web app:",
+      shareEmailTxt1: "Here is a web app shared with you by using Web AppBuilder for ArcGIS.",
+      shareEmailTxt2: "You can create and share your own web app with Esri Web AppBuilder for ArcGIS.",
+      shareEmailTxt3: "Visit http://www.esri.com/software/web-appbuilder for details.",
+      smallSize: "Small",
+      mediumSize: "Medium",
+      largeSize: "Large",
+      customSize: "Custom",
+      embed: "Embed this app in a website",
+      more: "Embed Options",
+      changeShareSettings: "Change Share Settings",
+      shareLinkText: "Share a link to this app",
+      linkOptions: "Link Options",
+
+      linkOptionsUrlParameters: "Select URL parameters included in the link",
+      currentMapExtent: "Current map extent",
+      chooseCenterWithLevel: "Click the map to define the center of the map with zoom level",
+      chooseCenterWithScale: "Click the map to define the center of the map with map scale",
+      findLocation: "Find the location or feature and zoom to it",
+      findLocation_inputPlaceholder: "Your place or feature",
+      queryFeature: "Query a feature and zoom to it",
+      addMarker: "Add a marker on the map",
+      addMarker_titlePlaceholder: "Title of the marker pop-up",
+      addMarker_symbolURL: "Marker symbol URL",
+      addMarker_label: "Marker label",
+      popupTitle: "Pop-up title",
+      zoomLevel: "Zoom level",
+      overwirteMobileLayout: "Overwrite default screen size of mobile layout",
+      language: "Set display language of the app",
+      auth: "Authenticate a user automatically",
+      linkPreview: "Link preview",
+      useShortenLink: "Short link",
+      shareMapUrlExtent: "Share current map extent",
+      shareToWebTips: "This app is not shared with the public. People might not be able to view it."
+    },
+    webSceneLoader: {
+      webglSupportTip: "3D web apps aren't supported in your browser."
+    },
+    map: {
+      basemapNotAvailable: "Basemap is not available.",
+      displayDefaultBasemap: "Displaying the default basemap instead.",
+      layerLoadedError: "The layer, ${layers} cannot be added to the map."
+    },
+    popup: {
+      relatedTables: "Related Tables:",
+      relatedRecords: "Related Records:",
+      noRelatedRecotds: "No related records found."
+    },
+    queryFeatures: {
+      tooManyFeaturesTip: "There are too many features in your selection. It may take long time to retrieve and display them on the map.",
+      askForContinue: "Do you want to continue?"
+    },
+    colorPalette: {
+      transparent: "Transparent",
+      custom: "Custom"
+    },
+
+    //we put these strings in here instead of in common because these strings are not translated.
+    noEditPrivileges: "Your account does not have permission to create or modify data.",
+    invalidConfiguration: "Widget is either not configured or the layers in the configuration are no longer in the map.  Please open the app in the builder mode and reconfigure the widget."
   }),
   "ar": 1,
+  "bs": 1,
   "cs": 1,
   "da": 1,
   "de": 1,
@@ -293,7 +515,9 @@ define({
   "fi": 1,
   "fr": 1,
   "he": 1,
+  "hr": 1,
   "it": 1,
+  "id": 1,
   "ja": 1,
   "ko": 1,
   "lt": 1,
@@ -305,6 +529,7 @@ define({
   "pt-pt": 1,
   "ro": 1,
   "ru": 1,
+  "sr": 1,
   "sv": 1,
   "th": 1,
   "tr": 1,

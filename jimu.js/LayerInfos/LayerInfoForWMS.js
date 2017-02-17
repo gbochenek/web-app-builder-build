@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// Copyright © 2014 Esri. All Rights Reserved.
+// Copyright © 2014 - 2016 Esri. All Rights Reserved.
 //
 // Licensed under the Apache License Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,8 +32,7 @@ LayerInfo, LayerInfoForDefaultWMS, LayerInfoFactory, FeatureLayer, esriLang) {
   /*jshint unused: false*/
   return declare(LayerInfo, {
 
-    constructor: function( operLayer, map, options) {
-      this._layerOptions = options.layerOptions ? options.layerOptions: null;
+    constructor: function( operLayer, map) {
       /*jshint unused: false*/
     },
 
@@ -43,11 +42,12 @@ LayerInfo, LayerInfoForDefaultWMS, LayerInfoFactory, FeatureLayer, esriLang) {
       return this._convertGeometryToMapSpatialRef(extent);
     },
 
-    _resetLayerObjectVisiblityBeforeInit: function() {
-      if(this._layerOptions) {
+    _resetLayerObjectVisiblity: function(layerOptions) {
+      var layerOption  = layerOptions ? layerOptions[this.id]: null;
+      if(layerOptions) {
         //reste visibility fo parent layer.
-        if(this._layerOption) {
-          this.layerObject.setVisibility(this._layerOption.visible);
+        if(layerOption) {
+          this.layerObject.setVisibility(layerOption.visible);
         }
 
         //reste visibles of sublayer.
@@ -55,9 +55,9 @@ LayerInfo, LayerInfoForDefaultWMS, LayerInfoFactory, FeatureLayer, esriLang) {
         var haseConfiguredInLayerOptionsflag = false;
         array.forEach(this.layerObject.layerInfos, function(jsapiLayerInfo) {
           var absoluteSublayerId = this.id + '_' + jsapiLayerInfo.name;
-          if(esriLang.isDefined(this._layerOptions[absoluteSublayerId])) {
+          if(esriLang.isDefined(layerOptions[absoluteSublayerId])) {
             haseConfiguredInLayerOptionsflag = true;
-            if(this._layerOptions[absoluteSublayerId].visible) {
+            if(layerOptions[absoluteSublayerId].visible) {
               visibleLayers.push(jsapiLayerInfo.name);
             }
           }

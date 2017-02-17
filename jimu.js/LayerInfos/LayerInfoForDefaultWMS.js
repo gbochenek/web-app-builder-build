@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// Copyright © 2014 Esri. All Rights Reserved.
+// Copyright © 2014 - 2016 Esri. All Rights Reserved.
 //
 // Licensed under the Apache License Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ define([
     getExtent: function() {
     },
 
-    _resetLayerObjectVisiblityBeforeInit: function() {
+    _resetLayerObjectVisiblity: function() {
       // do not do anything.
     },
 
@@ -120,6 +120,10 @@ define([
     },
 
     _onVisibleLayersChanged: function() {
+    },
+
+    getScaleRange: function() {
+      return this.originOperLayer.wms.layerInfo.getScaleRange();
     }
 
   });

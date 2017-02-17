@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// Copyright © 2014 Esri. All Rights Reserved.
+// Copyright © 2014 - 2016 Esri. All Rights Reserved.
 //
 // Licensed under the Apache License Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,6 +55,14 @@ define(['dojo/_base/declare',
           }
 
           if(window.isBuilder){
+            topic.subscribe("app/sceneViewLoaded", lang.hitch(this, this._onSceneViewLoaded));
+            topic.subscribe("app/sceneViewChanged", lang.hitch(this, this._onSceneViewChanged));
+          }else{
+            topic.subscribe("sceneViewLoaded", lang.hitch(this, this._onSceneViewLoaded));
+            topic.subscribe("sceneViewChanged", lang.hitch(this, this._onSceneViewChanged));
+          }
+
+          if(window.isBuilder){
             topic.subscribe("app/appConfigLoaded", lang.hitch(this, this._onAppConfigLoaded));
             topic.subscribe("app/appConfigChanged", lang.hitch(this, this._onAppConfigChanged));
           }else{
@@ -86,9 +94,6 @@ define(['dojo/_base/declare',
             findWidget;
 
           setting = lang.clone(setting);
-          if (!setting.folderUrl) {
-            utils.processWidgetSetting(setting);
-          }
 
           findWidget = this.getWidgetById(setting.id);
 
@@ -103,11 +108,12 @@ define(['dojo/_base/declare',
                 this.loadWidgetResources(setting).then(lang.hitch(this, function(resouces) {
                   try {
                     var widget = this.createWidget(setting, clazz, resouces);
+                    html.setAttr(widget.domNode, 'data-widget-name', setting.name);
                     console.log('widget [' + setting.uri + '] created.');
                   } catch (err) {
                     console.log('create [' + setting.uri + '] error:' + err.stack);
                     new Message({
-                      message: 'create widget error: ' + setting.uri
+                      message: window.jimuNls.widgetManager.createWidgetError + ': ' + setting.uri
                     });
                     def.reject(err);
                   }
@@ -134,7 +140,13 @@ define(['dojo/_base/declare',
           //    load the widget's main class, and return deferred
           var def = new Deferred();
 
-          require(utils.getRequireConfig(), [setting.uri], lang.hitch(this, function(clazz) {
+          var uri;
+          if(setting.isRemote){
+            uri = setting.uri + '.js';
+          }else{
+            uri = setting.uri;
+          }
+          require(utils.getRequireConfig(), [uri], lang.hitch(this, function(clazz) {
             def.resolve(clazz);
           }));
 
@@ -177,7 +189,7 @@ define(['dojo/_base/declare',
 
         loadWidgetManifest: function(widgetJson){
           var def = new Deferred();
-          var url = widgetJson.folderUrl + 'manifest.json';
+          var url = utils.getUriInfo(widgetJson.uri).folderUrl + 'manifest.json';
           //json.manifest is added in configmanager if manifest is merged.
           if(widgetJson.manifest){
             def.resolve(widgetJson);
@@ -185,21 +197,25 @@ define(['dojo/_base/declare',
           }
 
           xhr(url, {
-            handleAs:'json'
-          }).then(lang.hitch(this, function(manifest){
-            manifest.amdFolder = widgetJson.amdFolder;
-            manifest.category = 'widget';
-            if(!widgetJson.label){
-              utils.addI18NLabel(manifest).then(lang.hitch(this, function(){
-                this._processManifest(manifest);
-                utils.addManifest2WidgetJson(widgetJson, manifest);
-                def.resolve(widgetJson);
-              }));
-            }else{
-              this._processManifest(manifest);
-              utils.addManifest2WidgetJson(widgetJson, manifest);
-              def.resolve(widgetJson);
+            handleAs:'json',
+            headers: {
+              "X-Requested-With": null
             }
+          }).then(lang.hitch(this, function(manifest){
+            if(manifest.error && manifest.error.code){
+              //request manifest from AGOL item, and there is an error
+              //error code may be: 400, 403
+              return def.reject(manifest.error);
+            }
+
+            manifest.category = 'widget';
+            lang.mixin(manifest, utils.getUriInfo(widgetJson.uri));
+
+            utils.manifest.addI18NLabel(manifest).then(lang.hitch(this, function(){
+              this._processManifest(manifest);
+              utils.widgetJson.addManifest2WidgetJson(widgetJson, manifest);
+              def.resolve(widgetJson);
+            }));
           }), function(err){
             def.reject(err);
           });
@@ -233,8 +249,8 @@ define(['dojo/_base/declare',
         },
 
         _processManifest: function(manifest){
-          utils.addManifestProperies(manifest);
-          utils.processManifestLabel(manifest, window.dojoConfig.locale);
+          utils.manifest.addManifestProperies(manifest);
+          utils.manifest.processManifestLabel(manifest, window.dojoConfig.locale);
         },
 
         createWidget: function(setting, clazz, resouces) {
@@ -326,9 +342,18 @@ define(['dojo/_base/declare',
                 nls: resources.i18n,
                 templateString: resources.template,
                 appConfig: this.appConfig,
-                map: this.map,
+                // map: this.map,
                 'class': 'jimu-widget-setting'
               };
+
+              if(window.appInfo.appType === "HTML3D"){
+                //for 3D Map, we pass sceneView
+                setting2.sceneView = this.sceneView;
+              }else{
+                //for 2D Map, we pass map
+                setting2.map = this.map;
+              }
+
               for (var prop in setting) {
                 if (setting.hasOwnProperty(prop)) {
                   setting2[prop] = setting[prop];
@@ -336,12 +361,13 @@ define(['dojo/_base/declare',
               }
               try {
                 settingObject = new clazz(setting2);
+                html.setAttr(settingObject.domNode, 'data-widget-name-setting', setting2.name);
                 aspect.before(settingObject, 'destroy',
                   lang.hitch(this, this._onDestroyWidgetSetting, settingObject));
                 def.resolve(settingObject);
               } catch (err) {
                 new Message({
-                  message: 'Create widget setting page error:' + setting.uri
+                  message: window.jimuNls.widgetManager.createWidgetSettingPageError + ':' + setting.uri
                 });
                 def.reject(err);
               }
@@ -360,7 +386,13 @@ define(['dojo/_base/declare',
           //    load the widget's main class, and return deferred
           var def = new Deferred();
 
-          require(utils.getRequireConfig(), [setting.folderUrl + 'setting/Setting.js'],
+          var uri;
+          if(setting.isRemote){
+            uri = setting.folderUrl + 'setting/Setting.js';
+          }else{
+            uri = setting.amdFolder + 'setting/Setting';
+          }
+          require(utils.getRequireConfig(), [uri],
           lang.hitch(this, function(clazz) {
             def.resolve(clazz);
           }));
@@ -642,10 +674,17 @@ define(['dojo/_base/declare',
               encodeURIComponent(configFileArray[configFileArray.length - 1]);
             configFile = configFileArray.join('/');
             return xhr(configFile, {
-              handleAs: "json"
+              handleAs: "json",
+              headers: {
+                "X-Requested-With": null
+              }
             });
           } else {
-            return this._tryLoadResource(setting, 'config');
+            return this._tryLoadResource(setting, 'config').then(function(config){
+              //this property is used in map config plugin
+              setting.isDefaultConfig = true;
+              return config;
+            });
           }
         },
 
@@ -730,7 +769,10 @@ define(['dojo/_base/declare',
             return def;
           }
           return xhr(configFilePath, {
-            handleAs: "json"
+            handleAs: "json",
+            headers: {
+              "X-Requested-With": null
+            }
           });
         },
 
@@ -833,7 +875,8 @@ define(['dojo/_base/declare',
               var sectionKeyIndex = key.replace(/\//g, '_').indexOf(sectionKey + '_config');
               if (sectionKeyIndex >= 0){
                 utils.template.setConfigValue(setting,
-                            key.replace(/\//g, '_').substr(sectionKeyIndex, key.length).replace(sectionKey, 'widget'),
+                            key.replace(/\//g, '_').substr(sectionKeyIndex, key.length).
+                            replace(sectionKey, 'widget'),
                             values[key]);
               }
             }
@@ -918,6 +961,14 @@ define(['dojo/_base/declare',
 
         _onMapChanged: function(map) {
           this.map = map;
+        },
+
+        _onSceneViewLoaded: function(sceneView){
+          this.sceneView = sceneView;
+        },
+
+        _onSceneViewChanged: function(sceneView){
+          this.sceneView = sceneView;
         },
 
         _onAppConfigChanged: function(_appConfig, reason, changedData, otherOptions) {
@@ -1037,7 +1088,7 @@ define(['dojo/_base/declare',
                 def.resolve(data);
               }, function(err) {
                 new Message({
-                  message: 'load widget resouce error: ' + setting.uri
+                  message: window.jimuNls.widgetManager.loadWidgetResourceError + ': ' + setting.uri
                 });
                 def.reject(err);
               });
@@ -1053,7 +1104,11 @@ define(['dojo/_base/declare',
             hasp = 'hasStyle';
           } else if (flag === 'i18n') {
             file = setting.amdFolder + 'nls/strings.js';
-            setting.i18nFile = setting.amdFolder + 'nls/strings';
+            if(setting.isRemote){
+              setting.i18nFile = file;
+            }else{
+              setting.i18nFile = setting.amdFolder + 'nls/strings';
+            }
             hasp = 'hasLocale';
           } else if (flag === 'template') {
             file = setting.amdFolder + 'Widget.html';
@@ -1065,7 +1120,11 @@ define(['dojo/_base/declare',
             hasp = 'hasSettingUIFile';
           } else if (flag === 'settingI18n') {
             file = setting.amdFolder + 'setting/nls/strings.js';
-            setting.settingI18nFile = setting.amdFolder + 'setting/nls/strings';
+            if(setting.isRemote){
+              setting.settingI18nFile = file;
+            }else{
+              setting.settingI18nFile = setting.amdFolder + 'setting/nls/strings';
+            }
             hasp = 'hasSettingLocale';
           } else if (flag === 'settingStyle') {
             file = setting.amdFolder + 'setting/css/style.css';
@@ -1092,6 +1151,8 @@ define(['dojo/_base/declare',
             this.closeWidget(widget);
           }
           this._removeWidget(widget);
+          this.emit('widget-destroyed', widget.id);
+          topic.publish('widgetDestroyed', widget.id);
           console.log('destroy widget [' + widget.uri + '].');
         },
 

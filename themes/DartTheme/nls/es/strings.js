@@ -1,6 +1,4 @@
-﻿define(
-   ({
-    _themeLabel: "Dardos",
-    _layout_default: "Diseño predeterminado"
-  })
-);
+define({
+  "_themeLabel": "Dardos",
+  "_layout_default": "Diseño predeterminado"
+});

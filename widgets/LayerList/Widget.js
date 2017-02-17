@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// Copyright © 2014 Esri. All Rights Reserved.
+// Copyright © 2014 - 2016 Esri. All Rights Reserved.
 //
 // Licensed under the Apache License Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ define([
     'dojo/_base/declare',
     'dojo/_base/lang',
     'dojo/_base/array',
+    'dojo/_base/html',
     'dojo/dom',
     'dojo/on',
     'dojo/query',
@@ -27,14 +28,14 @@ define([
     './NlsStrings',
     'jimu/LayerInfos/LayerInfos'
   ],
-  function(BaseWidget, declare, lang, array, dom, on,
+  function(BaseWidget, declare, lang, array, html, dom, on,
   query, registry, LayerListView, NlsStrings, LayerInfos) {
 
     var clazz = declare([BaseWidget], {
       //these two properties is defined in the BaseWiget
       baseClass: 'jimu-widget-layerList',
       name: 'layerList',
-
+      _denyLayerInfosReorderResponseOneTime: null,
       //layerListView: Object{}
       //  A module is responsible for show layers list
       layerListView: null,
@@ -46,6 +47,7 @@ define([
       startup: function() {
         this.inherited(arguments);
         NlsStrings.value = this.nls;
+        this._denyLayerInfosReorderResponseOneTime = false;
         // summary:
         //    this function will be called when widget is started.
         // description:
@@ -168,6 +170,22 @@ define([
         this.own(on(this.operLayerInfos,
           'updated',
           lang.hitch(this, this._onLayerInfosObjUpdated)));
+
+        this.own(on(this.operLayerInfos,
+          'layerInfosReorder',
+          lang.hitch(this, this._onLayerInfosReorder)));
+
+        this.own(on(this.map,
+          'zoom-end',
+          lang.hitch(this, this._onZoomEnd)));
+
+        this.own(on(this.operLayerInfos,
+          'layerInfosRendererChanged',
+          lang.hitch(this, this._onLayerInfosRendererChanged)));
+
+        this.own(on(this.operLayerInfos,
+          'layerInfosOpacityChanged',
+          lang.hitch(this, this._onLayerInfosOpacityChanged)));
       },
 
       _onLayerInfosChanged: function(/*layerInfo, changedType*/) {
@@ -186,17 +204,62 @@ define([
             }
           }, this);
 
-        });
+        }, this);
       },
 
       _onLayerInfosObjUpdated: function() {
         this._refresh();
       },
 
+      _onZoomEnd: function() {
+        this.operLayerInfos.traversal(lang.hitch(this, function(layerInfo) {
+          query("[class~='layer-title-div-" + layerInfo.id + "']", this.domNode)
+          .forEach(function(layerTitleDivIdDomNode) {
+            try {
+              if (layerInfo.isInScale()) {
+                html.removeClass(layerTitleDivIdDomNode, 'grayed-title');
+              } else {
+                html.addClass(layerTitleDivIdDomNode, 'grayed-title');
+              }
+            } catch (err) {
+              console.warn(err.message);
+            }
+          }, this);
+        }));
+      },
+
+      _onLayerInfosReorder: function() {
+        if(this._denyLayerInfosReorderResponseOneTime) {
+          // denies one time
+          this._denyLayerInfosReorderResponseOneTime = false;
+        } else {
+          this._refresh();
+        }
+      },
+
+      _onLayerInfosRendererChanged: function(changedLayerInfos) {
+        try {
+          array.forEach(changedLayerInfos, function(layerInfo) {
+            this.layerListView.redrawLegends(layerInfo);
+          }, this);
+        } catch (err) {
+          this._refresh();
+        }
+      },
+
+      _onLayerInfosOpacityChanged: function(changedLayerInfos) {
+        array.forEach(changedLayerInfos, function(layerInfo) {
+          var opacity = layerInfo.layerObject.opacity === undefined ? 1 : layerInfo.layerObject.opacity;
+          var contentDomNode = query("[layercontenttrnodeid='" + layerInfo.id + "']", this.domNode)[0];
+          query(".legends-div.jimu-legends-div-flag img", contentDomNode).style("opacity", opacity);
+        }, this);
+      },
+
       onAppConfigChanged: function(appConfig, reason, changedData){
         /*jshint unused: false*/
         this.appConfig = appConfig;
       }
+
     });
 
     return clazz;

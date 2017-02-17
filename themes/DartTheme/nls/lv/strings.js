@@ -1,6 +1,4 @@
-﻿define(
-   ({
-    _themeLabel: "Šautras dizains",
-    _layout_default: "Noklusējuma izkārtojums"
-  })
-);
+define({
+  "_themeLabel": "Šautras dizains",
+  "_layout_default": "Noklusējuma izkārtojums"
+});

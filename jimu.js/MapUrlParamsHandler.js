@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// Copyright © 2014 Esri. All Rights Reserved.
+// Copyright © 2014 - 2016 Esri. All Rights Reserved.
 //
 // Licensed under the Apache License Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 define([
+  'dojo/_base/lang',
   'dojo/_base/array',
   'dojo/Deferred',
   'dojo/topic',
@@ -32,10 +33,11 @@ define([
   'esri/InfoTemplate',
   'esri/tasks/query',
   './utils',
-  './LayerInfos/LayerInfos'
-], function(array, Deferred, topic, all, Point, Extent, scaleUtils, SpatialReference,
+  './LayerInfos/LayerInfos',
+  './shareUtils'
+], function(lang, array, Deferred, topic, all, Point, Extent, scaleUtils, SpatialReference,
   ProjectParameters, esriConfig, wmUtils, symbolJsonUtils, Graphic, GraphicsLayer, InfoTemplate,
-  Query, jimuUtils, LayerInfos) {
+  Query, jimuUtils, LayerInfos, shareUtils) {
   var mo = {};
 
   /**
@@ -156,7 +158,23 @@ define([
     ?marker=-117,34,,,,My%20location&level=10
     ?marker=-117,34&level=10
     ?marker=10406557.402,6590748.134,2526&level=10
+    ?marker=-122.333,47.626,,,,&level=5&markertemplate=name,<div>content</div>,true
+    ?marker=-122.333,47.626,,,,&level=5&markertemplate=name,<div>content</div>
     */
+    var template = null;
+    if (queryObject.markertemplate) {
+      template = {
+        title: "",
+        content: "",
+        isIncludeShareUrl: false
+      };
+      try {
+        var temp = JSON.parse(decodeURIComponent(queryObject.markertemplate));
+        lang.mixin(template, temp);
+      } catch (error) {
+        console.error('urlParams: &markertemplate JSON.parse error.' + error.stack);
+      }
+    }
 
     var markerArray = queryObject.marker.split(";");
     if (markerArray.length === 1) {
@@ -217,12 +235,12 @@ define([
 
         if(!sameSpatialReference(point.spatialReference, map.spatialReference)){
           project(point, map.spatialReference, function(geometries){
-            addMarker(geometries[0], markerSymbol, textSymbol, title, map);
+            addMarker(geometries[0], markerSymbol, textSymbol, title, template, map);
           }, function(){
             console.error('Project center point error.');
           });
         }else{
-          addMarker(point, markerSymbol, textSymbol, title, map);
+          addMarker(point, markerSymbol, textSymbol, title, template, map);
         }
       });
     }
@@ -235,10 +253,25 @@ define([
     }, true);
   }
 
-  function addMarker(point, markerSymbol, textSymbol, title, map){
+  function addMarker(point, markerSymbol, textSymbol, title, template, map){
     var markerG, textG;
     var infoTemplate = new InfoTemplate('', title);
-    var layer = new GraphicsLayer();
+    if (template) {
+      //title
+      //infoTemplate.setTitle(template.title);
+      var content = template.content;
+      //shareUrl
+      if (template.isIncludeShareUrl) {
+        var json = { title: template.title };
+        lang.mixin(json, point);
+        var url = shareUtils.getShareUrl(map, json, content, true);
+        var shareUrlContent = shareUtils.getShareUrlContent(url);
+        content += shareUrlContent;
+      }
+      infoTemplate.setContent(content);
+    }
+
+    var layer = new GraphicsLayer({id: "marker-feature-action-layer"});
     map.addLayer(layer);
 
     markerG = new Graphic(point, markerSymbol, null, infoTemplate);
@@ -248,6 +281,8 @@ define([
       textSymbol.yoffset = markerSymbol.height / 2 + markerSymbol.yoffset;
       textG = new Graphic(new Point(point.toJson()), textSymbol);
       layer.add(textG);
+
+      markerG._textSymbol = textG;
     }
 
     map.centerAt(point);
@@ -315,6 +350,7 @@ define([
     var query = new Query();
     var prefix = '';
 
+    query.outSpatialReference = map.spatialReference;
     if(queryArray.length === 2){
       query.where = queryArray[1];
     }else if(queryArray.length === 3){
@@ -328,9 +364,9 @@ define([
           return;
         }
         if(["esriFieldTypeSmallInteger", "esriFieldTypeInteger", "esriFieldTypeSingle",
-          "esriFieldTypeDouble"].indexOf(field.type) > -1){
+          "esriFieldTypeDouble", "esriFieldTypeOID"].indexOf(field.type) > -1){
           query.where = field.name + '=' + queryArray[2];
-        }else if(["esriFieldTypeString", '"esriFieldTypeOID"'].indexOf(field.type) > -1){
+        }else if(["esriFieldTypeString"].indexOf(field.type) > -1){
           query.where = queryArray[1] + "=" + prefix + "'" + queryArray[2].replace(/\'/g, "''") + "'";
         }
       }, this);

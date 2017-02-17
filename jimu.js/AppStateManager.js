@@ -111,10 +111,10 @@ define([
           },
           layers: {}
         };
-        if (layerInfosObj && layerInfosObj.traversalLayerInfosOfWebmap) {
-          layerInfosObj.traversalLayerInfosOfWebmap(lang.hitch(this, function(layerInfo) {
+        if (layerInfosObj && layerInfosObj.traversal) {
+          layerInfosObj.traversal(lang.hitch(this, function(layerInfo) {
             mapObj.layers[layerInfo.id] = {
-              visible: layerInfo.isShowInMap()
+              visible: layerInfo.isVisible()
             };
           }));
         }

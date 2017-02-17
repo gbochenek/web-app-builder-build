@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// Copyright © 2014 Esri. All Rights Reserved.
+// Copyright © 2014 - 2016 Esri. All Rights Reserved.
 //
 // Licensed under the Apache License Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -81,15 +81,7 @@ function(lang, array, aspect, Deferred, cookie, json, topic, dojoScript, esriNS,
     },
 
     isInConfigOrPreviewWindow: function(){
-      var b = false;
-      try{
-        b = !window.isBuilder && window.parent && window.parent !== window &&
-        window.parent.isBuilder;
-      }catch(e){
-        console.log(e);
-        b = false;
-      }
-      return !!b;
+      return jimuUtils.isInConfigOrPreviewWindow();
     },
 
     isStringStartWith: function(str, prefix){
@@ -116,6 +108,10 @@ function(lang, array, aspect, Deferred, cookie, json, topic, dojoScript, esriNS,
       var def = new Deferred();
       var thePortalUrl = portalUrlUtils.getStandardPortalUrl(_portalUrl);
       var sharingUrl = thePortalUrl + "/sharing";
+      // var tokenUrl = thePortalUrl + "/sharing/rest/generateToken?f=json";
+      // The url should not include 'rest' because portal 10.3 doesn't support GET method with 'rest' and
+      // get following error
+      // {"error":{"code":405,"messageCode":"GWM_0005","message":"Method not supported.","details":[]}}
       var tokenUrl = thePortalUrl + "/sharing/generateToken?f=json";
       var httpsTokenUrl = portalUrlUtils.setHttpsProtocol(tokenUrl);
       var httpsSharingUrl = portalUrlUtils.setHttpsProtocol(sharingUrl);
@@ -167,7 +163,11 @@ function(lang, array, aspect, Deferred, cookie, json, topic, dojoScript, esriNS,
             }
 
             // ADD a new entry for this portal in CORS list.
-            esriConfig.defaults.io.corsEnabledServers.push({
+            // esriConfig.defaults.io.corsEnabledServers.push({
+            //   host: portalUrlUtils.getServerByUrl(thePortalUrl),
+            //   withCredentials: true
+            // });
+            this._pushCorsEnabledServerInfo({
               host: portalUrlUtils.getServerByUrl(thePortalUrl),
               withCredentials: true
             });
@@ -219,11 +219,53 @@ function(lang, array, aspect, Deferred, cookie, json, topic, dojoScript, esriNS,
         }
 
         // ADD a new entry for this portal in CORS list.
-        corsEnabledServers.push({
+        // corsEnabledServers.push({
+        //   host: server,
+        //   withCredentials: true
+        // });
+        this._pushCorsEnabledServerInfo({
           host: server,
           withCredentials: true
         });
       }
+    },
+
+    _pushCorsEnabledServerInfo: function(serverInfo){
+      /*jshint -W083 */
+      if(!serverInfo){
+        return;
+      }
+
+      var corsEnabledServers = esriConfig.defaults.io.corsEnabledServers;
+      var methodNames = ["charAt", "charCodeAt", "concat", "endsWith", "indexOf",
+        "lastIndexOf", "localeCompare", "match", "replace", "search", "slice", "split",
+        "startsWith", "substr", "substring", "toLocaleLowerCase", "toLocaleUpperCase",
+        "toLowerCase", "toString", "toUpperCase", "trim", "trimLeft", "trimRight", "valueOf"];
+
+      if(typeof serverInfo === "object" && typeof serverInfo.host === "string"){
+        //object
+        for(var key1 in serverInfo.host){
+          if(typeof serverInfo.host[key1] === 'function'){
+            serverInfo[key1] = function(){
+              return serverInfo.host[key1].apply(serverInfo.host, arguments);
+            };
+          }else{
+            serverInfo[key1] = serverInfo.host[key1];
+          }
+        }
+
+        serverInfo.length = serverInfo.host.length;
+
+        array.forEach(methodNames, function(methodName){
+          if(typeof serverInfo.host[methodName] === 'function'){
+            serverInfo[methodName] = function(){
+              return serverInfo.host[methodName].apply(serverInfo.host, arguments);
+            };
+          }
+        });
+      }
+
+      corsEnabledServers.push(serverInfo);
     },
 
     tryRegisterCredential: function( /* esri.Credential */ credential) {

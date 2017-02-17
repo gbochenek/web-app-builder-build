@@ -223,11 +223,6 @@
 .claro .dijitSliderHover .dijitSliderIncrementButtonHover {
   background-color: #222;
   border: 0 none;
-  background-image: url("icons/Icon_Right_16.png");
-}
-.claro .dijitSliderHover .dijitSliderDecrementIconH,
-.claro .dijitSliderHover .dijitSliderDecrementButtonHover {
-  background-image: url("icons/Icon_Left_16.png");
 }
 .claro .dijitSliderActive .dijitSliderDecrementIconH,
 .claro .dijitSliderActive .dijitSliderIncrementIconH,
@@ -235,20 +230,25 @@
 .claro .dijitSliderActive .dijitSliderIncrementButtonActive {
   background-color: #222;
   border: 0 none;
-  background-image: url("icons/Icon_Right_16.png");
-}
-.claro .dijitSliderActive .dijitSliderDecrementIconH,
-.claro .dijitSliderActive .dijitSliderDecrementButtonActive {
-  background-image: url("icons/Icon_Left_16.png");
 }
 .claro .dijitSliderIncrementIconH,
 .claro .dijitSliderIncrementIconV {
   background-image: url("icons/Icon_Right_16.png");
   background-position: center center;
 }
+.claro .dijitSliderRtl  .dijitSliderIncrementIconH,
+.claro .dijitSliderRtl  .dijitSliderIncrementIconV {
+  background-image: url("icons/Icon_Left_16.png");
+  background-position: center center;
+}
 .claro .dijitSliderDecrementIconH,
 .claro .dijitSliderDecrementIconV {
   background-image: url("icons/Icon_Left_16.png");
+  background-position: center center;
+}
+.claro .dijitSliderRtl  .dijitSliderDecrementIconH,
+.claro .dijitSliderRtl  .dijitSliderDecrementIconV {
+  background-image: url("icons/Icon_Right_16.png");
   background-position: center center;
 }
 .claro .dijitRuleMarkH,

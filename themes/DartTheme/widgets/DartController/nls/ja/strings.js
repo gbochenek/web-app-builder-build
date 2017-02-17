@@ -1,5 +1,3 @@
-﻿define(
-   ({
-    _widgetLabel: "ダート コントローラー"
-  })
-);
+define({
+  "_widgetLabel": "ダート コントローラー"
+});

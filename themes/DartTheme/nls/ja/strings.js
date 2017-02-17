@@ -1,6 +1,4 @@
-﻿define(
-   ({
-    _themeLabel: "ダート テーマ",
-    _layout_default: "デフォルトのレイアウト"
-  })
-);
+define({
+  "_themeLabel": "ダート テーマ",
+  "_layout_default": "デフォルトのレイアウト"
+});

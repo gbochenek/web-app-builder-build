@@ -1,5 +1,3 @@
-﻿define(
-   ({
-    _widgetLabel: "Šautras kontrolleris"
-  })
-);
+define({
+  "_widgetLabel": "Šautras kontrolleris"
+});

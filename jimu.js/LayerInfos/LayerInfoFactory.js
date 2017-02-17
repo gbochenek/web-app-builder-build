@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// Copyright © 2014 Esri. All Rights Reserved.
+// Copyright © 2014 - 2016 Esri. All Rights Reserved.
 //
 // Licensed under the Apache License Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -73,53 +73,52 @@ define([
 
       create: function(operLayer) {
         if (operLayer.featureCollection) {
-          return new this.LayerInfoForCollection(operLayer, this.map, this.options);
+          return new this.LayerInfoForCollection(operLayer, this.map);
         } else if (operLayer.layerObject.declaredClass === 'esri.layers.KMLLayer') {
-          return new this.LayerInfoForKML(operLayer, this.map, this.options);
+          return new this.LayerInfoForKML(operLayer, this.map);
         } else if (operLayer.layerObject.declaredClass === 'esri.layers.GeoRSSLayer') {
-          return new this.LayerInfoForGeoRSS(operLayer, this.map, this.options);
+          return new this.LayerInfoForGeoRSS(operLayer, this.map);
         } else if ((operLayer.layerObject.declaredClass === 'esri.layers.WMSLayer') &&
                 !operLayer.selfType) {
-          return new this.LayerInfoForWMS(operLayer, this.map, this.options);
+          return new this.LayerInfoForWMS(operLayer, this.map);
           //} else if (operLayer.layerObject && operLayer.layerObject.layerInfos) {
         } else if (
             operLayer.layerObject.declaredClass === 'esri.layers.ArcGISDynamicMapServiceLayer' ||
             operLayer.layerObject.declaredClass === 'esri.layers.ArcGISTiledMapServiceLayer') {
-          return new this.LayerInfoForMapService(operLayer, this.map, this.options);
+          return new this.LayerInfoForMapService(operLayer, this.map);
           //} else if (operLayer.layerObject) {
         } else if (operLayer.layerObject.declaredClass === 'esri.layers.ArcGISImageServiceLayer' ||
          operLayer.layerObject.declaredClass === 'esri.layers.ArcGISImageServiceVectorLayer') {
-          return new this.LayerInfoForDefaultImage(operLayer, this.map, this.options);
+          return new this.LayerInfoForDefaultImage(operLayer, this.map);
         } else if (operLayer.layerObject.declaredClass === 'esri.layers.StreamLayer') {
-          return new this.LayerInfoForDefaultStream(operLayer, this.map, this.options);
+          return new this.LayerInfoForDefaultStream(operLayer, this.map);
         } else {
           if(operLayer.layerObject.type === "Table"){
             operLayer.selfType = "table";
           }
           switch (operLayer.selfType) {
           case 'mapservice_dynamic_group':
-            return new this.LayerInfoForGroup(operLayer, this.map, this.options);
+            return new this.LayerInfoForGroup(operLayer, this.map);
           case 'mapservice_tiled_group':
-            return new this.LayerInfoForGroup(operLayer, this.map, this.options, true);
+            return new this.LayerInfoForGroup(operLayer, this.map, true);
           case 'mapservice_dynamic':
-            return new this.LayerInfoForDefaultDynamic(operLayer, this.map, this.options);
+            return new this.LayerInfoForDefaultDynamic(operLayer, this.map);
           case 'mapservice_tiled':
-            return new this.LayerInfoForDefaultTile(operLayer, this.map, this.options);
+            return new this.LayerInfoForDefaultTile(operLayer, this.map);
           case 'wms':
-            return new this.LayerInfoForDefaultWMS(operLayer, this.map, this.options);
+            return new this.LayerInfoForDefaultWMS(operLayer, this.map);
           case 'table':
-            return new this.LayerInfoForDefaultTable(operLayer, this.map, this.options);
+            return new this.LayerInfoForDefaultTable(operLayer, this.map);
           default:
-            return new this.LayerInfoForDefault(operLayer, this.map, this.options);
+            return new this.LayerInfoForDefault(operLayer, this.map);
           }
         }
       }
     });
 
-  clazz.getInstance = function(map, options) {
+  clazz.getInstance = function(map) {
     if (instance === null) {
       instance = new clazz();
-      instance.options = options;
     }
     // map can be changed.
     if(map) {

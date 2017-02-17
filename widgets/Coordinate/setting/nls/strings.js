@@ -44,9 +44,14 @@ define({
     Decimal_Degrees: "Decimal Degrees",
     Degree_Minutes_Seconds: "Degrees Minutes Seconds",
     MGRS: "MGRS",
-    USNG: "USNG"
+    USNG: "USNG",
+
+    displayOrderLonLatTips: "Coordinates display order:",
+    lonLatTips: "Longitude / Latitude(X, Y)",
+    latLonTips: "Latitude / Longitude(Y, X)"
   }),
   "ar": 1,
+  "bs": 1,
   "cs": 1,
   "da": 1,
   "de": 1,
@@ -56,7 +61,9 @@ define({
   "fi": 1,
   "fr": 1,
   "he": 1,
+  "hr": 1,
   "it": 1,
+  "id": 1,
   "ja": 1,
   "ko": 1,
   "lt": 1,
@@ -68,6 +75,7 @@ define({
   "pt-pt": 1,
   "ro": 1,
   "ru": 1,
+  "sr": 1,
   "sv": 1,
   "th": 1,
   "tr": 1,

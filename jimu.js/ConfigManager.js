@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// Copyright © 2014 Esri. All Rights Reserved.
+// Copyright © 2014 - 2016 Esri. All Rights Reserved.
 //
 // Licensed under the Apache License Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,11 +27,12 @@ define([
   './shared/AppVersionManager',
   './ConfigLoader',
   './tokenUtils',
+  './dijit/LoadingIndicator',
   'esri/config',
   'esri/tasks/GeometryService'
 ],
 function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetManager,
-  AppVersionManager, ConfigLoader, tokenUtils, esriConfig, GeometryService) {
+  AppVersionManager, ConfigLoader, tokenUtils, LoadingIndicator, esriConfig, GeometryService) {
   var instance = null, clazz;
 
   clazz = declare(null, {
@@ -59,7 +60,12 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
         window.parent.setPreviewViewerTopic(topic);
       }
 
-      on(window, 'resize', lang.hitch(this, this._onWindowResize));
+      if (!jimuUtils.isMobileUa()) {
+        //mobile devices do NOT listen to the 'resize' event
+        //avoid to virtual-keyboard appears and then app switches between "Mobile Mode" and "Desktop Mode"
+        on(window, 'resize', lang.hitch(this, this._onWindowResize));
+      }
+      on(window, "orientationchange", lang.hitch(this, this._onOrientationChange));
     },
 
     listenBuilderEvents: function(){
@@ -95,6 +101,12 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
 
       topic.subscribe('builder/templateConfigChanged',
         lang.hitch(this, this._onTemplateConfigChanged));
+
+      topic.subscribe('builder/appProxyForMapChanged', lang.hitch(this,
+        this._onAppProxyForMapChanged));
+
+      topic.subscribe('builder/appProxyForUrlChanged', lang.hitch(this,
+        this._onAppProxyForUrlChanged));
     },
 
     loadConfig: function(){
@@ -103,18 +115,23 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
         //in preview/config mode, the config is set by the builder.
         return;
       }
+
+      var loading = new LoadingIndicator();
+      loading.placeAt(window.jimuConfig.layoutId);
       return this.configLoader.loadConfig().then(lang.hitch(this, function(appConfig){
         this.portalSelf = this.configLoader.portalSelf;
         this.appConfig = this._addDefaultValues(appConfig);
 
-        window.appInfo.isRunInMobile = this._isRunInMobile();
+        window.appInfo.isRunInMobile = jimuUtils.inMobileSize();
 
         console.timeEnd('Load Config');
 
         var _ac = this.getAppConfig();
+        loading.destroy();
         topic.publish("appConfigLoaded", _ac);
         return _ac;
       }), lang.hitch(this, function(err){
+        loading.destroy();
         console.error(err);
         if(err && err.message && typeof err.message === 'string'){
           this._showErrorMessage(err.message);
@@ -123,10 +140,9 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
     },
 
     _showErrorMessage: function(msg){
-      var str = "Unable to create map: " + msg;
       html.create('div', {
         'class': 'app-error',
-        innerHTML: str
+        innerHTML: msg
       }, document.body);
     },
 
@@ -145,19 +161,15 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
         return jimuUtils.getConfigElementById(this, id);
       };
 
-      c.getConfigElementByLabel = function(label){
-        return jimuUtils.getConfigElementByLabel(this, label);
-      };
-
       c.getConfigElementsByName = function(name){
         return jimuUtils.getConfigElementsByName(this, name);
       };
 
-      c.getCleanConfig = function(){
+      c.getCleanConfig = function(isForAGOLTemplate){
         if(this._originConfig){
-          return getCleanConfig(this._originConfig);
+          return getCleanConfig(this._originConfig, isForAGOLTemplate);
         }else{
-          return getCleanConfig(this);
+          return getCleanConfig(this, isForAGOLTemplate);
         }
       };
 
@@ -167,28 +179,20 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
       return c;
     },
 
+    _onOrientationChange: function() {
+      if (this.appConfig) {
+        topic.publish("appConfigChanged", this.getAppConfig(), 'layoutChange');
+      }
+    },
     _onWindowResize: function () {
-      var runInMobile = this._isRunInMobile();
+      var runInMobile = jimuUtils.inMobileSize();
       if(window.appInfo.isRunInMobile === runInMobile){
         return;
       }
-
       window.appInfo.isRunInMobile = runInMobile;
 
       if(this.appConfig){
         topic.publish("appConfigChanged", this.getAppConfig(), 'layoutChange');
-      }
-    },
-
-    _isRunInMobile: function(){
-      var layoutBox = html.getMarginBox(window.jimuConfig.layoutId);
-      if (layoutBox.w <= window.jimuConfig.breakPoints[0] ||
-        layoutBox.h <= window.jimuConfig.breakPoints[0]) {
-        html.addClass(window.jimuConfig.layoutId, 'jimu-ismobile');
-        return true;
-      } else {
-        html.removeClass(window.jimuConfig.layoutId, 'jimu-ismobile');
-        return false;
       }
     },
 
@@ -210,6 +214,8 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
       for(var p in newJson){
         oldJson[p] = newJson[p];
       }
+
+      delete oldJson.isDefaultConfig;
 
       this.configLoader.addNeedValues(this.appConfig);
       this._addDefaultValues(this.appConfig);
@@ -276,8 +282,11 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
         });
       }
       this.configLoader.addNeedValues(this.appConfig);
-      this._addDefaultValues(this.appConfig);
-      topic.publish('appConfigChanged', this.getAppConfig(), 'widgetPoolChange', newJson);
+      this.configLoader.loadAndUpgradeAllWidgetsConfig(this.appConfig).then(lang.hitch(this, function(appConfig){
+        this.appConfig = appConfig;
+        this._addDefaultValues(this.appConfig);
+        topic.publish('appConfigChanged', this.getAppConfig(), 'widgetPoolChange', newJson);
+      }));
     },
 
     _removeWidgetOrGroupFromPoolById: function(appConfig, id){
@@ -372,6 +381,67 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
       topic.publish('appConfigChanged', this.getAppConfig(), 'loadingPageChange', newJson);
     },
 
+    /**
+     * _newJson pattern:
+     * {
+     *   mapItemId: itemId,
+     *   proxyItems: [{
+     *     sourceUrl: string;
+     *     title: string;
+     *     premium: boolean;
+     *     consumeCredits: boolean;
+     *     useProxy: boolean;
+     *     proxyUrl?: string;
+     *     proxyId?: string;
+     *   }]
+     * }
+     */
+    _onAppProxyForMapChanged: function(_newJson) {
+      var newJson = jimuUtils.reCreateObject(_newJson);
+
+      if (!('appProxy' in this.appConfig.map)) {
+        // Set appProxy if there is no such property
+        this.appConfig.map.appProxy = newJson;
+      } else if (this.appConfig.map.appProxy.mapItemId !== newJson.mapItemId) {
+        // Replace the app proxy if map changed.
+        this.appConfig.map.appProxy = newJson;
+      } else {
+        // Update proxy items
+        array.forEach(newJson.proxyItems, lang.hitch(this, function(item) {
+          array.some(this.appConfig.map.appProxy.proxyItems, function(configItem) {
+            if (configItem.sourceUrl === item.sourceUrl) {
+              configItem.useProxy = item.useProxy;
+              configItem.proxyUrl = item.proxyUrl || '';
+              configItem.proxyId = item.proxyId || '';
+              return true;
+            }
+          });
+        }));
+      }
+
+      topic.publish('appConfigChanged', this.getAppConfig(), 'appProxyChange', newJson);
+    },
+
+    /**
+     * _newJson pattern is array of:
+     * {
+     *   sourceUrl: string,
+     *   proxyUrl?: string,
+     *   proxyId?: string,
+     *   useProxy: boolean,
+     *   title: string,
+     *   premium: boolean,
+     *   consumeCredits: boolean
+     * }
+     */
+    _onAppProxyForUrlChanged: function(_newJson) {
+      var newJson = jimuUtils.reCreateObject(_newJson);
+
+      this.appConfig.appProxies = newJson;
+
+      topic.publish('appConfigChanged', this.getAppConfig(), 'appProxyChange', newJson);
+    },
+
     _onTemplateConfigChanged: function(_newJson){
       var newJson = jimuUtils.reCreateObject(_newJson);
       this.appConfig.templateConfig = newJson;
@@ -385,17 +455,20 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
       // transfer obj to another iframe may cause problems on IE8
       var newJson = jimuUtils.reCreateObject(_newJson);
 
-      if(newJson.itemId && newJson.itemId !== this.appConfig.map.itemId){
-        //remove the options that are relative to map's display when map is changed.
-        if(this.appConfig.map.mapOptions){
-          jimuUtils.deleteMapOptions(this.appConfig.map.mapOptions);
-        }
+      //remove the options that are relative to map's display when map is changed.
+      if(this.appConfig.map.mapOptions){
+        jimuUtils.deleteMapOptions(this.appConfig.map.mapOptions);
       }
+
       lang.mixin(this.appConfig.map, newJson);
 
       this.configLoader.addNeedValues(this.appConfig);
-      this._addDefaultValues(this.appConfig);
-      topic.publish('appConfigChanged', this.getAppConfig(), 'mapChange', newJson);
+
+      this.configLoader.loadAndUpgradeAllWidgetsConfig(this.appConfig).then(lang.hitch(this, function(appConfig){
+        this.appConfig = appConfig;
+        this._addDefaultValues(this.appConfig);
+        topic.publish('appConfigChanged', this.getAppConfig(), 'mapChange', newJson);
+      }));
     },
 
     _onMapOptionsChanged: function(_newJson){
@@ -431,6 +504,13 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
 
     _onStyleChanged: function(style){
       this.appConfig.theme.styles = this._genStyles(this.appConfig.theme.styles, style.name);
+      if (style.isCustom) {
+        this.appConfig.theme.customStyles = {
+          mainBackgroundColor: style.styleColor
+        };
+      } else {
+        delete this.appConfig.theme.customStyles;
+      }
       topic.publish('appConfigChanged', this.getAppConfig(), 'styleChange', style.name);
     },
 
@@ -520,7 +600,9 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
       }
 
       this.configLoader.addNeedValues(config);
-      this.configLoader.loadWidgetsManifest(config).then(lang.hitch(this, function(){
+      this.configLoader.loadWidgetsManifest(config).then(lang.hitch(this, function(config){
+        return this.configLoader.loadAndUpgradeAllWidgetsConfig(config);
+      })).then(lang.hitch(this, function(){
         this._addDefaultValues(config);
         def.resolve(config);
       }));
@@ -599,26 +681,28 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
       //  this method may be called by builder or UT
       c = jimuUtils.reCreateObject(c);
 
-      window.appInfo.isRunInMobile = this._isRunInMobile();
+      window.appInfo.isRunInMobile = jimuUtils.inMobileSize();
 
       this.configLoader.processProxy(c);
 
       this.configLoader.addNeedValues(c);
-      this._addDefaultValues(c);
 
-      tokenUtils.setPortalUrl(c.portalUrl);
+      this.configLoader.loadAndUpgradeAllWidgetsConfig(c).then(lang.hitch(this, function(c){
+        this._addDefaultValues(c);
 
-      if(this.appConfig){
-        //remove the options that are relative to map's display when map is changed.
-        if(c.map.itemId && c.map.itemId !== this.appConfig.map.itemId){
+        tokenUtils.setPortalUrl(c.portalUrl);
+        window.portalUrl = c.portalUrl;
+
+        if(this.appConfig){
+          //remove the options that are relative to map's display when map is changed.
           jimuUtils.deleteMapOptions(c.map.mapOptions);
+          this.appConfig = c;
+          topic.publish('appConfigChanged', this.getAppConfig(), 'resetConfig', c);
+        }else{
+          this.appConfig = c;
+          topic.publish("appConfigLoaded", this.getAppConfig());
         }
-        this.appConfig = c;
-        topic.publish('appConfigChanged', this.getAppConfig(), 'resetConfig', c);
-      }else{
-        this.appConfig = c;
-        topic.publish("appConfigLoaded", this.getAppConfig());
-      }
+      }));
     },
 
     /**********************************************
@@ -880,9 +964,6 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
           }
         }else{
           e.gid = info.groupId;
-          if(e.uri){
-            jimuUtils.processWidgetSetting(e);
-          }
         }
       }));
     },
@@ -890,7 +971,7 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
     _getDefaultIconFromUri: function(uri){
       var segs = uri.split('/');
       segs.pop();
-      return segs.join('/') + '/images/icon.png';
+      return segs.join('/') + '/images/icon.png?wab_dv=' + window.deployVersion;
     },
 
     _addIndexForWidgetPool: function(config){
@@ -922,6 +1003,9 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
     }else{
       if(urlParams){
         instance.urlParams = urlParams;
+        if(instance.configLoader){
+          instance.configLoader.urlParams = urlParams;
+        }
       }
     }
 
@@ -929,11 +1013,14 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
     return instance;
   };
 
-  function getCleanConfig(config){
+  function getCleanConfig(config, isForAGOLTemplate){
     //delete the properties that framework add
     var newConfig = lang.clone(config);
     var properties = jimuUtils.widgetProperties;
 
+    if(typeof isForAGOLTemplate === 'undefined'){
+      isForAGOLTemplate = false;
+    }
     delete newConfig.mode;
     jimuUtils.visitElement(newConfig, function(e, info){
       if(e.widgets){
@@ -951,7 +1038,7 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
         return;
       }
 
-      if(e.icon && e.icon === e.amdFolder + 'images/icon.png'){
+      if(e.icon && e.icon === e.folderUrl + 'images/icon.png?wab_dv=' + window.deployVersion){
         delete e.icon;
       }
 
@@ -962,15 +1049,31 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
       delete e.configFile;
       delete e.gid;
       delete e.isOnScreen;
+      delete e.isRemote;
 
       properties.forEach(function(p){
         delete e[p];
       });
 
+      if(!isForAGOLTemplate){
+        if(e.visible){
+          delete e.visible;
+        }
 
-      if(e.visible){
-        delete e.visible;
+        if(e.manifest && e.label === e.manifest.label){
+          delete e.label;
+        }
+
+        if(e.isDefaultConfig){
+          delete e.config;
+          delete e.isDefaultConfig;
+        }
+      }else{
+        if(typeof e.openAtStart === 'undefined'){
+          e.openAtStart = false;
+        }
       }
+
       delete e.manifest;
     });
     delete newConfig.rawAppConfig;
@@ -979,7 +1082,6 @@ function (declare, lang, array, html, topic, Deferred, on, jimuUtils, WidgetMana
     //delete all of the methods
     delete newConfig.getConfigElementById;
     delete newConfig.getConfigElementsByName;
-    delete newConfig.getConfigElementByLabel;
     delete newConfig.processNoUriWidgets;
     delete newConfig.addElementId;
     delete newConfig.getCleanConfig;

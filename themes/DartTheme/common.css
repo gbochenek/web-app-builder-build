@@ -107,7 +107,7 @@ strong {
   color: #d8d8d8 !important;
 }
 
-.jimu-checkbox .checkbox {
+/*.jimu-checkbox .checkbox {
   border: 1px solid #a6a6a6;
   border: 1px solid rgba(255, 255, 255, 0.5) !important;
   background-color: #393939;
@@ -118,6 +118,16 @@ strong {
   border: 1px solid #a6a6a6;
   border: 1px solid rgba(255, 255, 255, 0.5) !important;
   background-image: url(dijit-css/icons/Icon_Checkmark_16.png) !important;
+}*/
+
+.jimu-simple-table .simple-table-row .editable-div,
+.jimu-simple-table .simple-table-row .normal-text-div {
+  color: #000000 !important;
+  outline: none;
+}
+
+.claro .dijitDateTextBox .dijitArrowButton:before {
+    content:none!important;
 }
 
 .claro .dijitTextBox {
@@ -181,10 +191,6 @@ strong {
   box-shadow: none !important;
 }
 
-.esriBasemapGalleryLabelContainer {
-  height: 16px !important;
-  line-height: 16px !important;
-}
 /* Bookmark */
 
 .jimu-widget-bookmark .btn-add {
@@ -254,8 +260,8 @@ strong {
   line-height: 33px !important;
   font-size: 14px;
   border: none !important;
-  background-color: #262626;
-  background-color: rgba(0, 0, 0, 0.5) !important;
+  background-color: #797979;
+  background-color: rgba(0, 0, 0, 0.25) !important;
   -webkit-box-shadow: none !important;
   -moz-box-shadow: none !important;
   box-shadow: none !important;
@@ -273,8 +279,8 @@ strong {
 
 .simpleDirections .esriDirectionsPressedButton,
 .simpleDirections .esriDirectionsPressedButton:hover {
-  background-color: #797979;
-  background-color: rgba(255, 255, 255, 0.25) !important;
+  background-color: #000000;
+  background-color: rgba(0, 0, 0, 1) !important;
   box-shadow: none !important;
 }
 
@@ -293,9 +299,9 @@ strong {
 }
 /* Draw */
 
-.draw-item {
+.jimu-draw-box .draw-item {
   background-color: #262626;
-  background-color: rgba(255, 255, 255, 0.5) !important;
+  background-color: rgba(255, 255, 255, 0.5);
 }
 
 .jimu-draw-box .draw-item.jimu-state-active,
@@ -346,6 +352,10 @@ strong {
   font-size: 14px;
 }
 
+.jimu-widget-geoprocessing .jimu-gp-editor-selection{
+  background: #4C4C4C;
+}
+
 .jimu-tab>.jimu-viewstack {
   background-color: #3d3d3d;
   background-color: rgba(0, 0, 0, 0.2) !important;
@@ -369,6 +379,10 @@ strong {
   background: transparent !important;
 }
 
+.jimu-widget-layerList .layer-row.layer-row-mouseover {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
 .jimu-dropmenu>.jimu-icon-btn {
   border: transparent !important;
   background-color: #393939;
@@ -390,8 +404,24 @@ strong {
 
 .jimu-dropmenu>.drop-menu {
   border: none !important;
-  background-color: #131313;
-  background-color: rgba(0, 0, 0, 0.75) !important;
+  background-color: #232323 !important;;
+  /*background-color: rgba(0, 0, 0, 0.75) !important;*/
+}
+
+.jimu-widget-layerList .jimu-dropmenu .menu-item-dissable {
+  color: #c1c1c1 !important;
+}
+
+.jimu-widget-layerList .jimu-dropmenu .jimu-icon-btn{
+  background-color: rgba(255, 255, 255, 0) !important;
+}
+
+.jimu-widget-layerList .jimu-dropmenu .menu-item:hover{
+  background-color: #555555;
+}
+
+.jimu-widget-layerList .layer-list-operations .jimu-dropmenu .menu-item:hover{
+  background-color: #555555;
 }
 /* Measurement */
 
@@ -497,3 +527,266 @@ strong {
 .jimu-symbol-chooser .text-symbol-section .text-input{
   background-color: #383838;
 }
+
+/* jimu export format*/
+.jimu-export-chooser .export-format {
+  background-color: #707070;
+}
+
+.jimu-export-chooser .export-format .export-item:hover{
+  background-color: #4C4C4C;
+}
+
+.jimu-widget-geoprocessing .dgrid-header-row {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/***********about Edit Widget**************/
+.jimu-widget-edit  .jimu-widget-FilterEditor .flDropDown{
+  background-color: #4c4c4c !important;
+}
+
+
+.jimu-widget-edit-infoWindow .previos-btn.feature-action {
+  color: rgba(0, 0, 0,0.5) !important;
+}
+
+.jimu-widget-edit-infoWindow .previos-btn.feature-action:hover {
+  color: rgba(0, 0, 0, 1) !important;
+}
+
+  /****about inspector****/
+.jimu-widget-edit-infoWindow .esriAttributeInspector .dijitTextBoxHover{
+  background-color: grey;
+  background-image: none;
+  border-color: grey !important;
+}
+
+
+/***********end Edit Widget**************/
+
+/***********about Draw Widget**************/
+.DartTheme .dart-panel .jimu-widget-draw{
+  min-width: 276px;
+  margin-left: -7px;
+}
+.jimu-rtl .DartTheme .dart-panel .jimu-widget-draw {
+  margin-right: -7px;
+  margin-left: auto;
+}
+
+.DartTheme .dart-panel .jimu-transparency .dijitRuleLabelH{
+  left: -70%;
+}
+.jimu-rtl .DartTheme .dart-panel .jimu-transparency .dijitRuleLabelH{
+  left: auto;
+}
+
+.DartTheme .dart-panel .jimu-transparency > table > tbody > tr:first-child > td.dijitSliderDecoration > div > div:last-child > div {
+  left: 30px;
+}
+.jimu-rtl .DartTheme .dart-panel .jimu-transparency > table > tbody > tr:first-child > td.dijitSliderDecoration > div > div:last-child > div {
+  right: 30px;
+  left:auto;
+}
+.jimu-rtl .DartTheme .dart-panel .jimu-widget-draw .jimu-transparency > table > tbody .dijitRuleContainer .dijitRuleLabelContainer:last-child > .dijitRuleLabel {
+  left: -20%; !important;
+}
+/***********end Draw Widget**************/
+
+
+/* Query widget */
+.DartTheme .jimu-widget-query .list-table tr.single-task:hover,
+.DartTheme .jimu-widget-query .list-table tr.single-task.selected,
+.DartTheme .jimu-widget-query .jimu-table-row.jimu-state-active{
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Filter Widget*/
+.DartTheme .jimu-widget-filter .filter-list .filter-item .header:hover{
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.DartTheme .jimu-widget-filter .filter-list .filter-item .header .item-title{
+  max-width: 75%!important;
+}
+
+.DartTheme .jimu-widget-filter .filter-list .filter-item .header .setting{
+  background: url('./images/filter_setting_default.svg') no-repeat top;
+  bottom: 0;
+}
+.DartTheme .jimu-widget-filter .filter-list .filter-item .header .setting:hover{
+  background: url('./images/filter_setting_hover.svg') no-repeat top;
+}
+.jimu-widget-filter .filter-list .filter-item .header .done{
+  background: url('./images/filter_done.svg') no-repeat top;
+}
+
+/* Select widget */
+.DartTheme .jimu-widget-select .selectable-layer-item:hover {
+  background-color: rgba(0,0,0,0.5);
+}
+
+.DartTheme .jimu-widget-select .selectable-layer-item.no-action:hover {
+  background-color: #4c4c4c;
+}
+
+.DartTheme .jimu-widget-select .selectable-layer-item.invisible .layer-name {
+  color: #B7B7B7 !important;
+}
+
+.DartTheme .jimu-widget-select .selectable-layer-item.no-action .popup-menu-button {
+  background: url(images/more_disabled.svg) no-repeat center;
+  background-color: #4c4c4c;
+}
+
+.DartTheme .jimu-widget-select .details-node .content .graphic-item:hover {
+  background-color: rgba(0,0,0,0.5);
+}
+
+.DartTheme .jimu-widget-query .query-tab-item{
+  border-bottom: 1px solid #666;
+}
+
+.DartTheme .jimu-widget-query .query-tab-item.selected{
+  border-bottom: 2px solid #fff;
+}
+
+.DartTheme .jimu-widget-query .spatial-filter-tip{
+  color: #ccc !important;
+}
+
+.DartTheme .jimu-widget-query .jimu-table-row-separator{
+  color: #ccc !important;
+}
+
+.DartTheme .jimu-widget-query .esriViewPopup .mainSection .attrTable td.attrName{
+  color: #ccc !important;
+}
+
+/* PopupMenuButton */
+.DartTheme .popup-menu-button {
+  background: url(images/more_normal.svg) no-repeat center;
+}
+.DartTheme .popup-menu-button:hover {
+  background: url(images/more_hover.svg) no-repeat center;
+}
+.DartTheme .popup-menu-button.disabled {
+  background: url(images/more_disabled.svg) no-repeat center;
+}
+.DartTheme .esriPopup .popup-menu-button {
+  background: url(images/more_dark_normal.svg) no-repeat center;
+}
+.DartTheme .esriPopup .popup-menu-button:hover {
+  background: url(images/more_dark_hover.svg) no-repeat center;
+}
+.DartTheme .esriPopup .popup-menu-button.disabled {
+  background: url(images/more_dark_disabled.svg) no-repeat center;
+}
+/* popup menu */
+.popup-menu .menu-title {
+  border-bottom: 1px solid rgba(255,255,255,0.5) !important;
+}
+
+.popup-menu .menu-content {
+  background-color: #232323 !important;
+}
+
+.popup-menu .menu-title .label,
+.popup-menu .popup-menu-item .label {
+  color: #c1c1c1 !important;
+}
+
+.popup-menu .popup-menu-item:hover {
+  background-color: #555555 !important;
+}
+
+/* feature actions */
+.feature-action,
+.jimu-widget-frame.jimu-container .feature-action {
+  color: rgba(255,255,255,0.5) !important;
+}
+
+.feature-action.highlight,
+.feature-action:hover,
+.jimu-widget-frame.jimu-container .feature-action.highlight,
+.jimu-widget-frame.jimu-container .feature-action:hover {
+  color: rgb(255,255,255) !important;
+}
+.feature-action.disabled,
+.jimu-widget-frame.jimu-container .feature-action.disabled {
+  color: rgba(255,255,255,0.25) !important;
+}
+
+/* .jimu-checkbox */
+.DartTheme .jimu-checkbox .checkbox{
+  background-image: url(images/unchecked.png);
+}
+
+.DartTheme .jimu-checkbox .checkbox.checked{
+  background-image: url(images/checked.png);
+}
+
+.DartTheme .jimu-checkbox.jimu-state-disabled .checkbox{
+  background-image: url(images/unchecked_disabled.png);
+}
+
+.DartTheme .jimu-checkbox.jimu-state-disabled .checkbox.checked{
+  background-image: url(images/checked_disabled.png);
+}
+
+/*share start*/
+.DartTheme .share-container .shareLink .backBtn{
+  background: url("images/share/arrow-back.svg") no-repeat;
+  background-position: 50% 50%;
+}
+.DartTheme .share-container .shareLink .backBtn:hover {
+  background: url("images/share/arrow-back_hover.svg") no-repeat;
+  background-position: 50% 50%;
+}
+.DartTheme .share-container .shareLink .optionsRow .markers {
+  background: url("images/share/marker.svg") no-repeat;
+  background-position: 50% 50%;
+}
+.DartTheme .share-container .shareLink .optionsRow .markers:hover {
+  background: url("images/share/marker_hover.svg") no-repeat;
+  background-position: 50% 50%;
+}
+.DartTheme .share-container .shareLink .optionsRow .markers.selected {
+  background: url("images/share/marker_selected.svg") no-repeat;
+  background-position: 50% 50%;
+}
+.DartTheme .share-container .shareLink .email {
+  background: url("images/share/email.svg") no-repeat;
+}
+.DartTheme .share-container .shareLink .email:hover {
+  background: url("images/share/email_hover.svg") no-repeat;
+}
+.DartTheme .share-container .shareLink .facebook {
+  background: url("images/share/facebook.svg") no-repeat;
+}
+.DartTheme .share-container .shareLink .facebook:hover {
+  background: url("images/share/facebook_hover.svg") no-repeat;
+}
+.DartTheme .share-container .shareLink .twitter {
+  background: url("images/share/twitter.svg") no-repeat;
+}
+.DartTheme .share-container .shareLink .twitter:hover {
+  background: url("images/share/twitter_hover.svg") no-repeat;
+}
+.DartTheme .share-container .shareLink .googlePlus {
+  background: url("images/share/gplus.svg") no-repeat;
+}
+.DartTheme .share-container .shareLink .googlePlus:hover {
+  background: url("images/share/gplus_hover.svg") no-repeat;
+}
+.DartTheme .share-container .shareLink .shareLinkOptionsWrapper .optionsRow .shareCheckBoxes {
+  width: 16px;
+  height: 16px;
+}
+/*share end*/
+
+/*splash start*/
+.DartTheme .jimu-widget-splash .envelope .splash-container .footer .checkbox {
+  background-color: transparent;
+}
+/*splash end*/

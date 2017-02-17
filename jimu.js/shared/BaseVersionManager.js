@@ -28,7 +28,7 @@ define(function() {
       var oldVersionIndex = this.getVersionIndex(_oldVersion);
       var newVersionIndex = this.getVersionIndex(_newVersion);
 
-      if(oldVersionIndex >= newVersionIndex){
+      if(oldVersionIndex > newVersionIndex){
         throw Error('New version should higher than old version.');
       }
       var newConfig = config, i;
@@ -51,7 +51,7 @@ define(function() {
           versionIndex = i;
         }
       }
-
+      //if there is no version, we assume it's very old and will upgrade from the first version
       if(version === null){
         versionIndex = -1;
       }

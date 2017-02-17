@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// Copyright © 2014 Esri. All Rights Reserved.
+// Copyright © 2014 - 2016 Esri. All Rights Reserved.
 //
 // Licensed under the Apache License Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,6 +38,22 @@ LayerInfoFactory) {
         return this._convertGeometryToMapSpatialRef(extent);
       }
 
+    },
+
+    _resetLayerObjectVisiblity: function(layerOptions) {
+      var layerOption  = layerOptions ? layerOptions[this.id]: null;
+      if(layerOption) {
+        // check/unchek all sublayers according to subLayerOption.visible.
+        array.forEach(this.newSubLayers, function(subLayerInfo) {
+          var subLayerOption  = layerOptions ? layerOptions[subLayerInfo.id]: null;
+          if(subLayerOption) {
+            subLayerInfo.layerObject.setVisibility(subLayerOption.visible);
+          }
+        }, this);
+
+        // according to layerOption.visible to set this._visible after all sublayers setting.
+        this._setTopLayerVisible(layerOption.visible);
+      }
     },
 
     initVisible: function() {

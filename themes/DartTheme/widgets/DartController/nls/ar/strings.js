@@ -1,5 +1,3 @@
-﻿define(
-   ({
-    _widgetLabel: "مُتحكم الانطلاق"
-  })
-);
+define({
+  "_widgetLabel": "مُتحكم الانطلاق"
+});

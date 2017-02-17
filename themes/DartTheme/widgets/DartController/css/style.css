@@ -24,11 +24,11 @@
 
 .dart-controller-title {
   position: relative;
-  margin: 12px 10px 0px 10px;
+  margin: 10px 10px 2px 10px;
   height: 30px;
   color: #fff;
   font-size: 28px;
-  line-height: 30px;
+  line-height: 28px;
   font-weight: normal;
   white-space: nowrap;
   overflow: hidden;
@@ -207,6 +207,50 @@
   background: transparent !important;
 }
 
+.dart-controller .jimu-widget-mylocation .place-holder.tracking {
+  background-image: url(images/stop.png) !important;
+}
+
+.dart-controller-extent-navigate {
+  float: left;
+  overflow: hidden;
+  height: 24px;
+  margin: 5px 8px 5px 0px;
+  display: none;
+}
+
+.jimu-rtl .dart-controller-extent-navigate{
+  float: right;
+  margin: 5px 0 5px 8px;
+}
+
+.dart-controller-extent-navigate .jimu-widget-extent-navigate.horizontal .previous{
+  border: none;
+}
+
+.dart-controller-extent-navigate .jimu-widget-extent-navigate.horizontal .next{
+  margin-left: 8px;
+}
+
+.jimu-rtl .dart-controller-extent-navigate .jimu-widget-extent-navigate.horizontal .next{
+  margin-left: 0;
+  margin-right: 8px;
+}
+
+.dart-controller-extent-navigate .jimu-widget-extent-navigate .operation{
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  font-size: 14px;
+  border-radius: 12px;
+  background: white;
+  color: #646464;
+}
+
+.dart-controller-extent-navigate .jimu-widget-extent-navigate .operation:hover{
+  background-color: white;
+}
+
 .dart-controller-search {
   float: left;
   width: auto;
@@ -223,6 +267,10 @@
 /* Search */
 
 .jimu-widget-search .search-node.default-width-for-openAtStart {
+  width: 250px !important;
+}
+
+.arcgisSearch {
   width: 250px !important;
 }
 
@@ -417,8 +465,8 @@
 }
 
 .icon-node-active,
-.icon-node:active,
-.icon-node:focus,
+/*.icon-node:active,
+.icon-node:focus,*/
 .icon-node:hover {
   background-color: rgba(0, 0, 0, 0.25);
   border-radius: 22px;

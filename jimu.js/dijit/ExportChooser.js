@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// Copyright © 2014 Esri. All Rights Reserved.
+// Copyright © 2014 - 2016 Esri. All Rights Reserved.
 //
 // Licensed under the Apache License Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,15 +22,16 @@ define([
   'dojo/text!./templates/ExportChooser.html',
   'dojo/_base/lang',
   'dojo/_base/array',
-  'dojo/dom',
   'dojo/dom-construct',
   'dojo/dom-class',
   'dojo/dom-style',
-  'dojo/on'
+  'dojo/dom-geometry',
+  'dojo/on',
+  'dojo/Evented'
 ],
 function(declare, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, template, lang, array,
-  dom, domConstruct, domClass, domStyle, on) {
-  return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
+  domConstruct, domClass, domStyle, domGeom, on, Evented) {
+  return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, Evented], {
     templateString: template,
     baseClass: 'jimu-export-chooser',
     declaredClass: 'jimu.dijit.ExportChooser',
@@ -49,7 +50,7 @@ function(declare, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, templat
         if(supportedFormats.length > 0){
           this.initFormats(supportedFormats);
           this.own(on(this.exportFormats, 'click', lang.hitch(this, this._onFormatClick)));
-          this.own(on(document.body, 'click', lang.hitch(this, this._onBodyClick)));
+          this.own(on(this.exportMask, 'click', lang.hitch(this, this.hide)));
         }
       }
     },
@@ -65,13 +66,6 @@ function(declare, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, templat
       }, this);
     },
 
-    _onBodyClick: function(event){
-      var target = event.target || event.srcElement;
-      if(!(target === this.exportFormats || dom.isDescendant(target, this.exportFormats))){
-        this.hide();
-      }
-    },
-
     _onFormatClick: function(event){
       event.preventDefault();
       event.stopPropagation();
@@ -82,15 +76,52 @@ function(declare, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, templat
         var format = target.getAttribute('data-value');
         this.dataSource.setFormat(format);
         this.dataSource.download();
+        this.emit('start-downloading', format);
       }
     },
 
     show: function(anchorX, anchorY){
+      var left, top, size, offset = 5;
+
       domStyle.set(this.domNode, {
-        right: window.isRTL ? 'auto' : anchorX + 'px',
-        left: window.isRTL ? anchorX + 'px' : 'auto',
-        top: anchorY + 'px',
+        left: '-1000px',
+        top: '0px',
         display: 'block'
+      });
+
+      size = domGeom.getMarginSize(this.domNode);
+
+      if(window.isRTL) {
+        if(anchorX + size.w > window.innerWidth){ // beyond right side of the browser
+          left = window.innerWidth - size.w;
+        }else if(anchorX < 0){// beyond left side of the browser
+          left = 0;
+        }else{
+          left = anchorX;
+        }
+      } else {
+        if(anchorX - size.w < 0){ // beyond left side of the browser
+          left = 0;
+        }else if(anchorX > window.innerWidth){ // beyond right side of the browser
+          left = window.innerWidth - size.w;
+        }else{
+          left = anchorX - size.w;
+        }
+      }
+
+      if(size.h > window.innerHeight) {
+        top = 0;
+      }else if(anchorY + size.h > window.innerHeight){
+        top = window.innerHeight - size.h;
+      }else if(anchorY + size.h + offset < window.innerHeight){
+        top = anchorY + offset;
+      }else {
+        top = anchorY;
+      }
+
+      domStyle.set(this.domNode, {
+        left: left + 'px',
+        top: top + 'px'
       });
     },
 

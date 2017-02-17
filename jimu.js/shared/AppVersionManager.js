@@ -21,7 +21,8 @@ function(BaseVersionManager, utils) {
 
       upgrader: function(oldConfig){
         if(oldConfig.widgetOnScreen && oldConfig.widgetOnScreen.panel &&
-          oldConfig.widgetOnScreen.panel.uri === 'themes/FoldableTheme/panels/TitlePanel/Panel'){
+          (oldConfig.widgetOnScreen.panel.uri === 'themes/FoldableTheme/panels/TitlePanel/Panel' ||
+          oldConfig.widgetOnScreen.panel.uri === 'jimu/BaseWidgetPanel')){//In 1.0, tab theme use 'jimu/BaseWidgetPanel'
           oldConfig.widgetOnScreen.panel.uri = 'jimu/PreloadWidgetIconPanel';
         }
 
@@ -196,37 +197,39 @@ function(BaseVersionManager, utils) {
 
               var placeholder = oldConfig.widgetOnScreen.widgets[4];
 
-              if(placeholder.position.top !== undefined){
-                //default layout of FoldableTheme
-                ph_7 = {
-                  "position": {
-                    "left": 205,
-                    "top": 45
-                  }
-                };
-                ph_8 = {
-                  "position": {
-                    "left": 255,
-                    "top": 45
-                  }
-                };
-              }else{
-                //layout1 of FoldableTheme
-                ph_7 = {
-                  "position": {
-                    "left": 205,
-                    "bottom": 55
-                  }
-                };
-                ph_8 = {
-                  "position": {
-                    "left": 255,
-                    "bottom": 55
-                  }
-                };
-              }
+              if(placeholder){
+                if(placeholder.position.top !== undefined){
+                  //default layout of FoldableTheme
+                  ph_7 = {
+                    "position": {
+                      "left": 205,
+                      "top": 45
+                    }
+                  };
+                  ph_8 = {
+                    "position": {
+                      "left": 255,
+                      "top": 45
+                    }
+                  };
+                }else{
+                  //layout1 of FoldableTheme
+                  ph_7 = {
+                    "position": {
+                      "left": 205,
+                      "bottom": 55
+                    }
+                  };
+                  ph_8 = {
+                    "position": {
+                      "left": 255,
+                      "bottom": 55
+                    }
+                  };
+                }
 
-              oldConfig.widgetOnScreen.widgets.splice(7, 0, ph_7, ph_8);
+                oldConfig.widgetOnScreen.widgets.splice(7, 0, ph_7, ph_8);
+              }
             }
           }
         }
@@ -347,6 +350,559 @@ function(BaseVersionManager, utils) {
 
         return oldConfig;
       },
+      compatible: true
+    }, {
+      version: '2.0beta',
+
+      description: 'The version for Developer Edition beta 2.0.',
+
+      upgrader: function(oldConfig){
+        oldConfig.keepAppState = true;
+        return oldConfig;
+      },
+
+      compatible: true
+    }, {
+      version: '2.0',
+
+      description: 'The version for Online 4.1.',
+
+      upgrader: function(oldConfig){
+        return oldConfig;
+      },
+
+      compatible: true
+    }, {
+      version: '2.0.1',
+
+      description: 'The version for Developer Edition 2.0.',
+
+      upgrader: function(oldConfig){
+        return oldConfig;
+      },
+
+      compatible: true
+    }, {
+      version: '2.1',
+
+      description: 'The version for Online 4.2.',
+
+      upgrader: function(oldConfig){
+        return oldConfig;
+      },
+
+      compatible: true
+    }, {
+      version: '2.2',
+
+      description: 'The version for Online 4.3.',
+
+      upgrader: function(oldConfig){
+        return oldConfig;
+      },
+
+      compatible: true
+    }, {
+      version: '2.3',
+
+      description: 'The version for Online 4.4.',
+
+      upgrader: function(oldConfig){
+        var onScreenWidgets = oldConfig.widgetOnScreen.widgets;
+        var mobileOnScreenWidgets = oldConfig.mobileLayout && oldConfig.mobileLayout.widgetOnScreen &&
+         oldConfig.mobileLayout.widgetOnScreen.widgets;
+        addExtentNavigateWidget(oldConfig, onScreenWidgets, mobileOnScreenWidgets);
+
+        /***************functions****************/
+        function addExtentNavigateWidget(oldConfig, onScreenWidgets, mobileOnScreenWidgets){
+          var themeName = oldConfig.theme && oldConfig.theme.name;
+          if(themeName === 'FoldableTheme'){
+            addExtentNavigateWidgetForFoldableTheme(onScreenWidgets, mobileOnScreenWidgets);
+          }else if(themeName === 'BillboardTheme'){
+            addExtentNavigateWidgetForBillboardTheme(onScreenWidgets);
+          }else if(themeName === 'BoxTheme'){
+            addExtentNavigateWidgetForBoxTheme(onScreenWidgets);
+          }else if(themeName === 'JewelryBoxTheme'){
+            addExtentNavigateWidgetForJewelryBoxTheme(onScreenWidgets);
+          }else if(themeName === 'LaunchpadTheme'){
+            addExtentNavigateWidgetForLaunchpadTheme(onScreenWidgets, mobileOnScreenWidgets);
+          }else if(themeName === 'PlateauTheme'){
+            addExtentNavigateWidgetForPlateauTheme(onScreenWidgets);
+          }else if(themeName === 'TabTheme'){
+            addExtentNavigateWidgetForTabTheme(onScreenWidgets);
+          }
+        }
+
+        //if true, means a contains b.
+        //if false, means a doesn't contain b
+        //example: {uri: "widgets/Slide/Widget",position:{left:10,right:10}} contains {position:{left:10,right:10}}}
+        function isContains(a, b){
+          if(!a || !b){
+            return false;
+          }
+          for(var key in b){
+            if(b.hasOwnProperty(key)){
+              if(typeof b[key] === "object"){
+                if(!isContains(a[key], b[key])){
+                  return false;
+                }
+              }else{
+                if(a[key] !== b[key]){
+                  return false;
+                }
+              }
+            }
+          }
+          return true;
+        }
+
+        function addExtentNavigateWidgetForFoldableTheme(onScreenWidgets, mobileOnScreenWidgets){
+
+          function isDefaultLayoutOrLayout1OrLayout2(){
+            var isRightMyLocationWidget = isContains(onScreenWidgets[11], {
+              "uri": "widgets/MyLocation/Widget",
+              "position": {
+                "left": 7,
+                "top": 110
+              }
+            });
+            return isRightMyLocationWidget;
+          }
+
+          function isLayout3(){
+            var isRightMyLocationWidget = isContains(onScreenWidgets[11], {
+              "uri": "widgets/MyLocation/Widget",
+              "position": {
+                "left": 12,
+                "bottom": 164
+              }
+            });
+            return isRightMyLocationWidget;
+          }
+
+          function isLayout4(){
+            var isRightMyLocationWidget = isContains(onScreenWidgets[11], {
+              "uri": "widgets/MyLocation/Widget",
+              "position": {
+                "left": 164,
+                "bottom": 14
+              }
+            });
+            return isRightMyLocationWidget;
+          }
+
+          if(isDefaultLayoutOrLayout1OrLayout2()){
+            //add ExtentNavigate for default layout of FoldableTheme
+            onScreenWidgets.push({
+              "uri": "widgets/ExtentNavigate/Widget",
+              "visible": false,
+              "position": {
+                "top": 150,
+                "left": 7
+              },
+              "version": "2.3"
+            });
+          }else if(isLayout3()){
+            //add ExtentNavigate for layout3 of FoldableTheme
+            onScreenWidgets.push({
+              "uri": "widgets/ExtentNavigate/Widget",
+              "visible": false,
+              "position": {
+                "left": 12,
+                "bottom": 203
+              },
+              "version": "2.3"
+            });
+            if(mobileOnScreenWidgets){
+              mobileOnScreenWidgets.push({
+                "uri": "widgets/ExtentNavigate/Widget",
+                "visible": false,
+                "position": {
+                  "right": 12,
+                  "top": 211
+                },
+                "version": "2.3"
+              });
+            }
+          }else if(isLayout4()){
+            //add ExtentNavigate for layout4 of FoldableTheme
+            onScreenWidgets.push({
+              "uri": "widgets/ExtentNavigate/Widget",
+              "visible": false,
+              "position": {
+                "left": 203,
+                "bottom": 14,
+                "height": 30
+              },
+              "version": "2.3"
+            });
+            for(var i = 0; i < onScreenWidgets.length; i++){
+              var widget = onScreenWidgets[i];
+              if(isContains(widget, {
+                "uri": "widgets/Scalebar/Widget",
+                "position": {
+                  "left": 220,
+                  "bottom": 5
+                }
+              })){
+                widget.position.left = 288;
+              }
+
+              if(isContains(widget, {
+                "uri": "widgets/Coordinate/Widget",
+                "position": {
+                  "left": 395,
+                  "bottom": 5
+                }
+              })){
+                widget.position.left = 463;
+              }
+            }
+            if(mobileOnScreenWidgets){
+              mobileOnScreenWidgets.push({
+                "uri": "widgets/ExtentNavigate/Widget",
+                "visible": false,
+                "position": {
+                  "top": 209,
+                  "left": 12
+                },
+                "version": "2.3"
+              });
+            }
+          }
+        }
+
+        function addExtentNavigateWidgetForBillboardTheme(onScreenWidgets){
+          function isDefaultLayout(){
+            var isRightMyLocationWidget = isContains(onScreenWidgets[3], {
+              "uri": "widgets/MyLocation/Widget",
+              "position": {
+                "left": 15,
+                "top": 120
+              }
+            });
+            var isRightPlaceholder = isContains(onScreenWidgets[12], {
+              "position": {
+                "left": 240,
+                "top": 53
+              }
+            });
+            return isRightMyLocationWidget && isRightPlaceholder;
+          }
+
+          function isLayout1(){
+            var isRightMyLocationWidget = isContains(onScreenWidgets[3], {
+              "uri": "widgets/MyLocation/Widget",
+              "position": {
+                "left": 15,
+                "top": 120
+              }
+            });
+            var isRightPlaceholder = isContains(onScreenWidgets[12], {
+              "position": {
+                "top": 10,
+                "right": 195
+              }
+            });
+            return isRightMyLocationWidget && isRightPlaceholder;
+          }
+
+          function isLayout2(){
+            var isRightMyLocationWidget = isContains(onScreenWidgets[3], {
+              "uri": "widgets/MyLocation/Widget",
+              "position": {
+                "left": 15,
+                "bottom": 45
+              }
+            });
+            var isRightPlaceholder = isContains(onScreenWidgets[12], {
+              "position": {
+                "left": 15,
+                "top": 233
+              }
+            });
+            return isRightMyLocationWidget && isRightPlaceholder;
+          }
+
+          function isLayout3(){
+            var isRightMyLocationWidget = isContains(onScreenWidgets[3], {
+              "uri": "widgets/MyLocation/Widget",
+              "position": {
+                "left": 15,
+                "top": 120
+              }
+            });
+            var isRightPlaceholder = isContains(onScreenWidgets[12], {
+              "position": {
+                "right": 15,
+                "top": 195
+              }
+            });
+            return isRightMyLocationWidget && isRightPlaceholder;
+          }
+
+          if (isDefaultLayout()) {
+            onScreenWidgets.push({
+              "uri": "widgets/ExtentNavigate/Widget",
+              "visible": false,
+              "position": {
+                "left": 15,
+                "top": 159
+              },
+              "version": "2.3"
+            });
+          } else if (isLayout1()) {
+            onScreenWidgets.push({
+              "uri": "widgets/ExtentNavigate/Widget",
+              "visible": false,
+              "position": {
+                "left": 15,
+                "top": 159
+              },
+              "version": "2.3"
+            });
+          } else if (isLayout2()) {
+            onScreenWidgets.push({
+              "uri": "widgets/ExtentNavigate/Widget",
+              "visible": false,
+              "position": {
+                "left": 15,
+                "bottom": 195
+              },
+              "version": "2.3"
+            });
+          } else if (isLayout3()) {
+            onScreenWidgets.push({
+              "uri": "widgets/ExtentNavigate/Widget",
+              "visible": false,
+              "position": {
+                "left": 15,
+                "top": 159
+              },
+              "version": "2.3"
+            });
+          }
+        }
+
+        function addExtentNavigateWidgetForBoxTheme(onScreenWidgets){
+          onScreenWidgets.push({
+            "uri": "widgets/ExtentNavigate/Widget",
+            "visible": false,
+            "position": {
+              "left": 10,
+              "top": 131
+            },
+            "version": "2.3"
+          });
+        }
+
+        function addExtentNavigateWidgetForJewelryBoxTheme(onScreenWidgets){
+          function isDefaultLayout(){
+            var isRightMyLocationWidget = isContains(onScreenWidgets[9], {
+              "uri": "widgets/MyLocation/Widget",
+              "position": {
+                "left": 7,
+                "top": 110
+              }
+            });
+            var isRightSearchWidget = isContains(onScreenWidgets[2], {
+              "uri": "widgets/Search/Widget",
+              "position": {
+                "left": 55,
+                "top": 5
+              }
+            });
+            var isRightPlaceholder = isContains(onScreenWidgets[4], {
+              "position": {
+                "left": 55,
+                "top": 45
+              }
+            });
+            return isRightMyLocationWidget && isRightSearchWidget && isRightPlaceholder;
+          }
+
+          function isLayout1(){
+            var isRightMyLocationWidget = isContains(onScreenWidgets[9], {
+              "uri": "widgets/MyLocation/Widget",
+              "position": {
+                "left": 7,
+                "top": 110
+              }
+            });
+            var isRightSearchWidget = isContains(onScreenWidgets[2], {
+              "uri": "widgets/Search/Widget",
+              "position": {
+                "left": 55,
+                "top": 5
+              }
+            });
+            var isRightPlaceholder = isContains(onScreenWidgets[4], {
+              "position": {
+                "left": 7,
+                "bottom": 70
+              }
+            });
+            return isRightMyLocationWidget && isRightSearchWidget && isRightPlaceholder;
+          }
+
+          function isLayout2(){
+            var isRightMyLocationWidget = isContains(onScreenWidgets[9], {
+              "uri": "widgets/MyLocation/Widget",
+              "position": {
+                "left": 7,
+                "top": 110
+              }
+            });
+            var isRightSearchWidget = isContains(onScreenWidgets[2], {
+              "uri": "widgets/Search/Widget",
+              "position": {
+                "right": 2,
+                "top": 2,
+                "relativeTo": "browser"
+              }
+            });
+            var isRightPlaceholder = isContains(onScreenWidgets[4], {
+              "position": {
+                "left": 7,
+                "bottom": 70
+              }
+            });
+            return isRightMyLocationWidget && isRightSearchWidget && isRightPlaceholder;
+          }
+
+          if(isDefaultLayout() || isLayout1() || isLayout2()){
+            onScreenWidgets.push({
+              "uri": "widgets/ExtentNavigate/Widget",
+              "visible": false,
+              "position": {
+                "top": 148,
+                "left": 7
+              },
+              "version": "2.3"
+            });
+          }
+        }
+
+        function addExtentNavigateWidgetForLaunchpadTheme(onScreenWidgets, mobileOnScreenWidgets){
+          function isDefaultLayout(){
+            var isRightMyLocationWidget = isContains(onScreenWidgets[6], {
+              "uri": "widgets/MyLocation/Widget",
+              "position": {
+                "left": 25,
+                "top": 215
+              }
+            });
+            return isRightMyLocationWidget;
+          }
+
+          function isLayout2(){
+            var isRightMyLocationWidget = isContains(onScreenWidgets[6], {
+              "uri": "widgets/MyLocation/Widget",
+              "position": {
+                "left": 25,
+                "top": 215
+              }
+            });
+            return isRightMyLocationWidget;
+          }
+
+          if(isDefaultLayout() || isLayout2()){
+            onScreenWidgets.push({
+              "uri": "widgets/ExtentNavigate/Widget",
+              "visible": false,
+              "position": {
+                "top": 255,
+                "left": 25
+              },
+              "version": "2.3"
+            });
+            if(mobileOnScreenWidgets){
+              mobileOnScreenWidgets.push({
+                "uri": "widgets/ExtentNavigate/Widget",
+                "visible": false,
+                "position": {
+                  "right": 10,
+                  "bottom": 238
+                },
+                "version": "2.3"
+              });
+            }
+          }
+        }
+
+        function addExtentNavigateWidgetForPlateauTheme(onScreenWidgets){
+          function isDefaultLayout(){
+            var isRightMyLocationWidget = isContains(onScreenWidgets[6], {
+              "uri": "widgets/MyLocation/Widget",
+              "position": {
+                "left": 7,
+                "top": 110
+              }
+            });
+            return isRightMyLocationWidget;
+          }
+
+          function isLayout1(){
+            var isRightMyLocationWidget = isContains(onScreenWidgets[6], {
+              "uri": "widgets/MyLocation/Widget",
+              "position": {
+                "left": 12,
+                "bottom": 164
+              }
+            });
+            return isRightMyLocationWidget;
+          }
+
+          if(isDefaultLayout()){
+            onScreenWidgets.push({
+              "uri": "widgets/ExtentNavigate/Widget",
+              "visible": false,
+              "position": {
+                "top": 149,
+                "left": 7
+              },
+              "version": 2.3
+            });
+          }
+
+          if(isLayout1()){
+            onScreenWidgets.push({
+              "uri": "widgets/ExtentNavigate/Widget",
+              "visible": false,
+              "position": {
+                "left": 12,
+                "bottom": 201
+              },
+              "version": 2.3
+            });
+          }
+        }
+
+        function addExtentNavigateWidgetForTabTheme(onScreenWidgets){
+          var isRightMyLocationWidget = isContains(onScreenWidgets[11], {
+            "uri": "widgets/MyLocation/Widget",
+            "position": {
+              "left": 7,
+              "top": 110
+            }
+          });
+
+          if(isRightMyLocationWidget){
+            onScreenWidgets.push({
+              "uri": "widgets/ExtentNavigate/Widget",
+              "visible": false,
+              "position":{
+                "top": 149,
+                "left": 7
+              },
+              "version": "2.3"
+            });
+          }
+        }
+
+        return oldConfig;
+      },
+
       compatible: true
     }];
 

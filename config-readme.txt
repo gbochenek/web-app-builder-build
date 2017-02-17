@@ -8,13 +8,17 @@
     //This property stores all of the theme's styles. The app displays the first style by default.
     "styles": [],
 
+    "customStyles": {
+      "mainBackgroundColor": ""
+    },
+
     //Optional. It is the theme version.
     "version": "1.1"
   },
 
   //Optional. If not set, do not use proxy.
   "httpProxy": {
-    //Optional. Default to true. If false all requests will not use proxy.
+    //Optional. Default to false. If false all requests will not use proxy.
     //If true, if the request match proxy rule, use proxy;
     //         if the request doesn't match proxy rule but need proxy(cross domain, i.e.), use proxy url;
     //         if the request neither match proxy rule nor the request doesn't need proxy, framework will check "alwaysUseProxy";
@@ -192,6 +196,18 @@
       },
       "center": "",
       "level": 3
+    },
+
+    // Config proxies to replace the premium layer in the map.
+    "appProxy": {
+      // Webmap id
+      "mapItemId": "",
+      "proxyItems": [{
+        "sourceUrl": "",
+        "proxyUrl": "",
+        "proxyId": "",
+        "useProxy": true
+      }]
     }
   },
 
@@ -261,7 +277,7 @@
     For placeholder, because it has no uri, so plese use "ph_<i>" as the key, the <i> is the index of the placeholder.
     For group, so plese use "g_<i>" as the key, the <i> is the index of the group.
   *****************************************/
-  "mobileConfig": {
+  "mobileLayout": {
     "widgetOnScreen": {
       "widgets": {
         "themes/FoldableTheme/widgets/HeaderController/Widget":{
@@ -314,6 +330,14 @@
       "height": 58
     }
   },
+
+  // Config proxies to replace the premium urls used in the app.
+  "appProxies": [{
+    "sourceUrl": "",
+    "proxyUrl": "",
+    "proxyId": "",
+    "useProxy": true
+  }],
 
   /***********************************
    if app is a tempalte or an app create from a template, they will have 'templateConfig' property.

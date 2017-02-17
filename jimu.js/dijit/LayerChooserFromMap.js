@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// Copyright © 2014 Esri. All Rights Reserved.
+// Copyright © 2014 - 2016 Esri. All Rights Reserved.
 //
 // Licensed under the Apache License Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,6 +52,8 @@ define([
       //constructor options:
       createMapResponse: null, //The response of method createMap.
       multiple: false, //Can select multiple layers or a single layer.
+      onlyShowVisible: false,
+      updateWhenLayerInfosIsShowInMapChanged: false,
 
       //public methods:
       //getSelectedItems
@@ -65,6 +67,7 @@ define([
 
       //events:
       //tree-click
+      //update
 
       postMixInProperties:function(){
         this.nls = window.jimuNls.basicLayerChooserFromMap;
@@ -80,9 +83,22 @@ define([
         this.shelter.startup();
 
         this._createTree();
+        this.basicFilter = lang.hitch(this, this.basicFilter);
+        this.filter = LayerChooser.andCombineFilters([this.basicFilter, this.filter]);
+
         if(this.createMapResponse){
           this.setCreateMapResponse(this.createMapResponse);
         }
+      },
+
+      basicFilter: function(layerInfo){
+        var def = new Deferred();
+        if(this.onlyShowVisible){
+          def.resolve(layerInfo.isShowInMap());
+        }else{
+          def.resolve(true);
+        }
+        return def;
       },
 
       //to be override, return Deferred object
@@ -137,6 +153,12 @@ define([
           this.own(
             on(this.layerInfosObj, 'layerInfosChanged', lang.hitch(this, this._onLayerInfosChanged))
           );
+          if(this.updateWhenLayerInfosIsShowInMapChanged){
+            this.own(
+              on(this.layerInfosObj, 'layerInfosIsShowInMapChanged',
+                lang.hitch(this, this._onLayerInfosIsShowInMapChanged))
+            );
+          }
           this._buildTree(this.layerInfosObj);
         }));
       },
@@ -144,6 +166,13 @@ define([
       _onLayerInfosChanged: function(layerInfo, changedType) {
         /*jshint unused: false*/
         this._buildTree(this.layerInfosObj);
+        this.emit('update');
+      },
+
+      _onLayerInfosIsShowInMapChanged: function(changedLayerInfos){
+        /*jshint unused: false*/
+        this._buildTree(this.layerInfosObj);
+        this.emit('update');
       },
 
       _buildTree: function(layerInfosObj){

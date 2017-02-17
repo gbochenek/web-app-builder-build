@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// Copyright © 2014 Esri. All Rights Reserved.
+// Copyright © 2014 - 2016 Esri. All Rights Reserved.
 //
 // Licensed under the Apache License Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ define([
     'jimu/dijit/SimpleTable'
   ],
   function(declare, lang, array, html, query, on, _WidgetsInTemplateMixin, BaseWidgetSetting,
-    TabContainer, jimuUtils, Select, CheckBox) {
+    TabContainer, jimuUtils, Select, CheckBox, Table) {
     return declare([BaseWidgetSetting, _WidgetsInTemplateMixin], {
       baseClass: 'jimu-widget-draw-setting',
       distanceUnits:null,
@@ -74,7 +74,15 @@ define([
           conversion: jimuUtils.localizeNumber(1.0936133, {
             places: 7
           })
-        }];
+        }, {
+          value: 'NAUTICAL_MILES',
+          label: this.nls.nauticalmiles,
+          abbr: this.nls.nauticalmilesAbbreviation || 'nm',
+          conversion: jimuUtils.localizeNumber(5.39956803455, {
+            places: 9
+          }) + 'e-4'
+        }
+        ];
 
         this.areaUnits = [{
           value: 'SQUARE_KILOMETERS',
@@ -129,6 +137,55 @@ define([
 
       postCreate: function() {
         this.inherited(arguments);
+
+        var distanceFields = [{name: "label", title: this.nls.label, "class": "label", type: "empty"}, {
+          name: "abbr",
+          title: this.nls.abbr,
+          "class": "abbr",
+          type: "text",
+          editable: false
+        }, {
+          name: "conversion",
+          title: this.nls.conversion,
+          "class": "conversion",
+          type: "text",
+          editable: false
+        }, {
+          name: "actions",
+          title: this.nls.actions,
+          "class": "actions",
+          type: "actions",
+          actions: ["up", "down", "delete"]
+        }];
+        this.distanceTable = new Table({
+          fields: distanceFields
+        });
+        this.distanceTable.placeAt(this.distanceTableDiv);
+
+        var areaFields = [{name: "label", title: this.nls.label, "class": "label", type: "empty"}, {
+          name: "abbr",
+          title: this.nls.abbr,
+          "class": "abbr",
+          type: "text",
+          editable: false
+        }, {
+          name: "conversion",
+          title: this.nls.conversion,
+          "class": "conversion",
+          type: "text",
+          editable: false
+        }, {
+          name: "actions",
+          title: this.nls.actions,
+          "class": "actions",
+          type: "actions",
+          actions: ["up", "down", "delete"]
+        }];
+        this.areaTable = new Table({
+          fields: areaFields
+        });
+        this.areaTable.placeAt(this.areaTableDiv);
+
         this.cbxOperationalLayer = new CheckBox({
           label: this.nls.operationalLayer,
           style: 'margin-top:10px;'

@@ -1,5 +1,3 @@
-﻿define(
-   ({
-    _widgetLabel: "Smiginio valdiklis"
-  })
-);
+define({
+  "_widgetLabel": "Smiginio valdiklis"
+});

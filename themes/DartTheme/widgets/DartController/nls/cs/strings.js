@@ -1,5 +1,3 @@
-﻿define(
-   ({
-    _widgetLabel: "Ovladač šipek"
-  })
-);
+define({
+  "_widgetLabel": "Ovladač šipek"
+});

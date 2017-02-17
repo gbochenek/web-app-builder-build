@@ -83,7 +83,7 @@ profile = {
         "jimu/LayerInfos/LayerInfoForDefaultWMS",
         "jimu/LayerInfos/LayerInfoForDefaultTable",
         "jimu/LayerInfos/LayerInfoForDefaultImage",
-	"jimu/LayerInfos/LayerInfoForDefaultStream"
+        "jimu/LayerInfos/LayerInfoForDefaultStream"
       ],
       exclude: ['esri/main', 'libs/main']
     },

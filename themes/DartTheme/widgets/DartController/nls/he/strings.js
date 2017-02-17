@@ -1,5 +1,3 @@
-﻿define(
-   ({
-    _widgetLabel: "בקר חץ"
-  })
-);
+define({
+  "_widgetLabel": "בקר סרגל תחתון"
+});

@@ -7,7 +7,7 @@
         "right": 0,
         "bottom": 20
       },
-      "version": "1.4"
+      "version": "2.3"
     }, {
       "uri": "widgets/OverviewMap/Widget",
       "visible": false,
@@ -15,7 +15,7 @@
         "right": 0,
         "top": 0
       },
-      "version": "1.4"
+      "version": "2.3"
     }, {
       "uri": "widgets/Scalebar/Widget",
       "visible": false,
@@ -24,7 +24,7 @@
         "bottom": 1,
         "zIndex": 100
       },
-      "version": "1.4"
+      "version": "2.3"
     }, {
       "uri": "widgets/Coordinate/Widget",
       "visible": false,
@@ -33,11 +33,11 @@
         "bottom": -2,
         "zIndex": 100
       },
-      "version": "1.4"
+      "version": "2.3"
     }, {
       "uri": "widgets/AttributeTable/Widget",
       "visible": false,
-      "version": "1.4",
+      "version": "2.3",
       "position": {
         "relativeTo": "browser"
       }
@@ -47,7 +47,7 @@
       "position": {
         "relativeTo": "browser"
       },
-      "version": "1.4"
+      "version": "2.3"
     }]
   },
 

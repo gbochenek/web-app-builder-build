@@ -1,6 +1,4 @@
-﻿define(
-   ({
-    _themeLabel: "Piltema",
-    _layout_default: "Standardlayout"
-  })
-);
+define({
+  "_themeLabel": "Piltema",
+  "_layout_default": "Standardlayout"
+});

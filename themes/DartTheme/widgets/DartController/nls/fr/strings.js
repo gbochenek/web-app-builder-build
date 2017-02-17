@@ -1,5 +1,3 @@
-﻿define(
-   ({
-    _widgetLabel: "Contrôleur de fléchette"
-  })
-);
+define({
+  "_widgetLabel": "Contrôleur de fléchette"
+});

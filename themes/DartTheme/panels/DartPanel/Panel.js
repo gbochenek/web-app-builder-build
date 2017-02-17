@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// Copyright © 2014 Esri. All Rights Reserved.
+// Copyright © 2014 - 2016 Esri. All Rights Reserved.
 //
 // Licensed under the Apache License Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ define(['dojo/_base/declare',
       DEFAULT_HEIGHT = 450;
 
     return declare([BaseWidgetPanel, _TemplatedMixin], {
-      baseClass: 'dart-panel dart-bgcolor shadow',
+      baseClass: 'dart-panel dart-bgcolor jimu-main-background shadow',
       templateString: template,
       titleHeight: 60,
       normalPosition: null,
@@ -275,11 +275,11 @@ define(['dojo/_base/declare',
         var style, box, row, col, margin = 10;
 
         if (!containerNode) {
-          // if (position.relativeTo === 'map') {
-          //   containerNode = this.map.id;
-          // } else {
-          containerNode = window.jimuConfig.layoutId;
-          // }
+          if (position.relativeTo === 'map') {
+            containerNode = this.map.id;
+          } else {
+            containerNode = window.jimuConfig.layoutId;
+          }
         }
 
         box = domGeometry.getMarginBox(containerNode);
@@ -352,6 +352,10 @@ define(['dojo/_base/declare',
         this.position = pos;
         style = utils.getPositionStyle(this.position);
         style.zIndex = zIndex;
+        if(window.isRTL && 'right' in style){
+          style.left = style.right;
+          style.right = '';
+        }
         domStyle.set(this.domNode, style);
         this._onResponsible();
         this.inherited(arguments);

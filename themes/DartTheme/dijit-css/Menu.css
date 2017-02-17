@@ -154,3 +154,6 @@ There are three areas of styling for the Menu:
   border: 0 none;
   color: #f8f8f8;
 }
+.claro .dijitMenuPopup .dijitMenu .dijitMenuItem .esriTravelModesTypeName{
+  color: #fff;
+}

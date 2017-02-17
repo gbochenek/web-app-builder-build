@@ -1,8 +1,8 @@
 {
   "name": "Scalebar",
   "platform": "HTML",
-  "version": "1.4",
-  "wabVersion": "1.4",
+  "version": "2.3",
+  "wabVersion": "2.3",
   "author": "Esri R&D Center Beijing",
   "description": "",
   "copyright": "",
@@ -10,7 +10,6 @@
   "properties": {
     "inPanel": false,
     "hasUIFile": false,
-    "supportMultiInstance": false,
     "supportMultiInstance": false
   }
 }

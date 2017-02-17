@@ -1,5 +1,3 @@
-﻿define(
-   ({
-    _widgetLabel: "Controller Freccetta"
-  })
-);
+define({
+  "_widgetLabel": "Controller Freccetta"
+});

@@ -1,5 +1,3 @@
-﻿define(
-   ({
-    _widgetLabel: "Kontroler Rzutki"
-  })
-);
+define({
+  "_widgetLabel": "Kontroler Rzutki"
+});

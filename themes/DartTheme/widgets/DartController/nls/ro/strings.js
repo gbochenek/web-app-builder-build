@@ -1,5 +1,3 @@
-﻿define(
-   ({
-    _widgetLabel: "Controler săgeţi"
-  })
-);
+define({
+  "_widgetLabel": "Controler săgeţi"
+});

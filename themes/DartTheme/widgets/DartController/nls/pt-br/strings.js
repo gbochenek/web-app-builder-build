@@ -1,5 +1,3 @@
-﻿define(
-   ({
-    _widgetLabel: "Controlador de Lançamento"
-  })
-);
+define({
+  "_widgetLabel": "Controlador de Lançamento"
+});

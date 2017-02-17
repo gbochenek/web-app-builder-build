@@ -1,5 +1,3 @@
-﻿define(
-   ({
-    _widgetLabel: "Trình điều khiển Phi tiêu"
-  })
-);
+define({
+  "_widgetLabel": "Trình điều khiển Phi tiêu"
+});

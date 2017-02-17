@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// Copyright © 2014 Esri. All Rights Reserved.
+// Copyright © 2014 - 2016 Esri. All Rights Reserved.
 //
 // Licensed under the Apache License Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
+  'dojo/_base/lang',
   'esri/graphicsUtils',
   './LayerInfo',
   './LayerInfoFactory'
-], function(declare, array, graphicsUtils, LayerInfo,
+], function(declare, array, lang, graphicsUtils, LayerInfo,
 LayerInfoFactory) {
   return declare(LayerInfo, {
 
@@ -53,6 +54,22 @@ LayerInfoFactory) {
       return extent;
     },
 
+    _resetLayerObjectVisiblity: function(layerOptions) {
+      var layerOption  = layerOptions ? layerOptions[this.id]: null;
+      if(layerOption) {
+        // check/unchek all sublayers according to subLayerOption.visible.
+        array.forEach(this.newSubLayers, function(subLayerInfo) {
+          var subLayerOption  = layerOptions ? layerOptions[subLayerInfo.id]: null;
+          if(subLayerOption) {
+            subLayerInfo.layerObject.setVisibility(subLayerOption.visible);
+          }
+        }, this);
+
+        // according to layerOption.visible to set this._visible after all sublayers setting.
+        this._setTopLayerVisible(layerOption.visible);
+      }
+    },
+
     initVisible: function() {
       var visible = false, i;
       for (i = 0; i < this.newSubLayers.length; i++) {
@@ -75,7 +92,7 @@ LayerInfoFactory) {
       }, this);
 
       // feature collection can not response event of 'visibility-change'
-      // show send event at this point.
+      // so send event at this point.
       this._onVisibilityChanged();
     },
 
@@ -101,6 +118,11 @@ LayerInfoFactory) {
       array.forEach(operLayer.featureCollection.layers, function(layerObj) {
         var subLayerInfo;
         if (this._getLayerIndexesInMapByLayerId(layerObj.layerObject.id)) {
+          // prepare for _extraSetLayerInfos.
+          lang.setObject("_wabProperties.originOperLayer.showLegend",
+                         this.originOperLayer.featureCollection.showLegend,
+                         layerObj.layerObject);
+
           subLayerInfo = LayerInfoFactory.getInstance().create({
             layerObject: layerObj.layerObject,
             title: layerObj.layerObject.label ||
@@ -110,7 +132,7 @@ LayerInfoFactory) {
             id: layerObj.id || " ",
             collection: {"layerInfo": this},
             selfType: 'collection',
-            showLegend: layerObj.showLegend, //temporary code for support showLegend.
+            showLegend: this.originOperLayer.featureCollection.showLegend,
             parentLayerInfo: this
           });
 
@@ -159,6 +181,20 @@ LayerInfoFactory) {
       //   return true if 'showLegend' has not been cnfigured in webmp
       return this.originOperLayer.featureCollection.showLegend !== undefined ?
              this.originOperLayer.featureCollection.showLegend : true;
+    },
+
+    getScaleRange: function() {
+      var scaleRange;
+      var subLayers = this.getSubLayers();
+      if(subLayers[0]) {
+        scaleRange = subLayers[0].getScaleRange();
+      } else {
+        scaleRange = {
+          minScale: 0,
+          maxScale: 0
+        };
+      }
+      return scaleRange;
     }
 
   });

@@ -1,5 +1,3 @@
-﻿define(
-   ({
-    _widgetLabel: "镖控制器"
-  })
-);
+define({
+  "_widgetLabel": "飞镖控制器"
+});

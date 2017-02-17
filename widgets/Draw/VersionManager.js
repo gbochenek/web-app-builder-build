@@ -29,6 +29,31 @@ function(BaseVersionManager) {
       upgrader: function(oldConfig){
         return oldConfig;
       }
+    }, {
+      version: '2.0Beta',
+      upgrader: function(oldConfig) {
+        return oldConfig;
+      }
+    }, {
+      version: '2.0',
+      upgrader: function(oldConfig) {
+        return oldConfig;
+      }
+    }, {
+      version: '2.0.1',
+      upgrader: function(oldConfig) {
+        return oldConfig;
+      }
+    }, {
+      version: '2.1',
+      upgrader: function(oldConfig) {
+        return oldConfig;
+      }
+    }, {
+      version: '2.2',
+      upgrader: function(oldConfig) {
+        return oldConfig;
+      }
     }];
   }
 

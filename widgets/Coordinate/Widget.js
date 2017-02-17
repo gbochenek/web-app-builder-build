@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// Copyright © 2014 Esri. All Rights Reserved.
+// Copyright © 2014 - 2016 Esri. All Rights Reserved.
 //
 // Licensed under the Apache License Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -521,14 +521,23 @@ define([
         wkid = parseInt(wkid, 10);
 
         if (selected) {
-          label = "<b>" + label + name + "</b>&nbsp;(" + wkid + ")&lrm;&nbsp;";
+          label = "<b>" + label + name + "</b>&nbsp;" + this._rtlTheBrackets(wkid) + "&nbsp;";
         } else {
-          label = label + name + "&nbsp;&nbsp;(" + wkid + ")&lrm;&nbsp;";
+          label = label + name + "&nbsp;&nbsp;" + this._rtlTheBrackets(wkid) + "&nbsp;";
         }
         if (wkid === mapWkid) {
           label += this.nls.defaultLabel;
         }
         return label;
+      },
+
+      _rtlTheBrackets: function(str) {
+        var rlmFlag = "&rlm;";
+        if (window.isRTL) {
+          return rlmFlag + "(" + str + ")";
+        } else {
+          return "(" + str + ")";
+        }
       },
 
       addMenuItem: function(name, wkid, outputUnit, tfWkid, forward, _options) {
@@ -549,7 +558,7 @@ define([
       },
 
       _toFormat: function(num) {
-        var decimalPlaces = isFinite(parseInt(this.config.decimalPlaces, 10)) ?
+        /*var decimalPlaces = isFinite(parseInt(this.config.decimalPlaces, 10)) ?
           parseInt(this.config.decimalPlaces, 10) : 3;
         var decimalStr = num.toString().split('.')[1] || "",
           decimalLen = decimalStr.length,
@@ -563,8 +572,17 @@ define([
         }
 
         num = num.toFixed(fix) + patchStr;
+        return this.separator(num, decimalPlaces);*/
+        if(isNaN(num)){
+          return "";
+        }
 
-        return this.separator(num, decimalPlaces);
+        return utils.localizeNumberByFieldInfo(num, {
+          format: {
+            places: this.config.decimalPlaces,
+            digitSeparator: this.config.addSeparator
+          }
+        });
       },
 
       onProjectComplete: function(wkid, geometries) {
@@ -601,6 +619,28 @@ define([
         if (!this.selectedItem) {
           return;
         }
+
+        var cPos = html.position(this.domNode);
+        var mPos = html.position(this.map.root);
+
+        if (!window.isRTL) {
+          if ((cPos.x - mPos.x + cPos.w) + 5 >= mPos.w) {
+            if ('left' in this.position) {
+              html.setStyle(this.domNode, 'right', '5px');
+            } else {
+              html.setStyle(this.domNode, 'left', '5px');
+            }
+          }
+        } else {
+          if (cPos.x - mPos.x <= 0 || (cPos.x - mPos.x + cPos.w) + 5 >= mPos.w) {
+            if ('left' in this.position) {
+              html.setStyle(this.domNode, 'left', '5px');
+            } else {
+              html.setStyle(this.domNode, 'right', '5px');
+            }
+          }
+        }
+
         if (window.appInfo.isRunInMobile) {
           this.graphicsLayer.remove(this._markerGraphic);
           this._markerGraphic = null;
@@ -737,8 +777,7 @@ define([
         } else {
           // use default units
           if (options.defaultUnit === outUnit) {
-            this.coordinateInfo.innerHTML = this._toFormat(x) +
-              "  " + this._toFormat(y);
+            this._displayCoordinatesByOrder(this._toFormat(x), this._toFormat(y));
             this.coordinateInfo.innerHTML += " " + this._unitToNls(outUnit);
             return;
           }
@@ -799,7 +838,11 @@ define([
           this.coordinateInfo.innerHTML = usng.LLtoUSNG(y, x, 5);
         }
 
-        this.coordinateInfo.innerHTML += " " + this._unitToNls(outUnit);
+        if (isNaN(y) && isNaN(x)) {
+          this.coordinateInfo.innerHTML = "";
+        } else {
+          this.coordinateInfo.innerHTML += " " + this._unitToNls(outUnit);
+        }
       },
 
       _displayDegOrDms: function(outUnit, y, x) {
@@ -813,12 +856,15 @@ define([
         if ("DEGREE_MINUTE_SECONDS" === outUnit) {
           lat_string = this.degToDMS(y, 'LAT');
           lon_string = this.degToDMS(x, 'LON');
-          this.coordinateInfo.innerHTML = lat_string + "  " + lon_string;
+          this._displayCoordinatesByOrder(lat_string, lon_string);
         } else {
-          this.coordinateInfo.innerHTML = this._toFormat(y) +
-            "  " + this._toFormat(x);
+          this._displayCoordinatesByOrder(this._toFormat(x), this._toFormat(y));
 
-          this.coordinateInfo.innerHTML += " " + this._unitToNls(outUnit);
+          if (isNaN(y) && isNaN(x)) {
+            this.coordinateInfo.innerHTML = "";
+          } else {
+            this.coordinateInfo.innerHTML += " " + this._unitToNls(outUnit);
+          }
         }
       },
 
@@ -827,10 +873,22 @@ define([
         x = x * options.unitRate;
         y = y * options.unitRate;
 
-        this.coordinateInfo.innerHTML = this._toFormat(x) +
-          "  " + this._toFormat(y);
+        this._displayCoordinatesByOrder(this._toFormat(x), this._toFormat(y));
 
-        this.coordinateInfo.innerHTML += " " + this._unitToNls(outUnit);
+        if (isNaN(y) && isNaN(x)) {
+          this.coordinateInfo.innerHTML = "";
+        } else {
+          this.coordinateInfo.innerHTML += " " + this._unitToNls(outUnit);
+        }
+      },
+
+      _displayCoordinatesByOrder: function(x, y) {
+        var displayOrderLonLat = this.config.displayOrderLonLat;//X,Y
+        if (displayOrderLonLat) {
+          this.coordinateInfo.innerHTML = x + "  " + y;
+        } else {
+          this.coordinateInfo.innerHTML = y + "  " + x;
+        }
       },
 
       onFoldContainerClick: function() {
@@ -875,8 +933,8 @@ define([
         return (decDir === 'LAT') ?
           deg + "&deg;" + min_string + "&prime;" + sec_string + "&Prime;" + dir :
           deg + "&deg;" + min_string + "&prime;" + sec_string + "&Prime;" + dir;
-      },
-
+      }
+      /*,
       separator: function(nStr, places) {
         if (this.config.addSeparator && JSON.parse(this.config.addSeparator)) {
           return utils.localizeNumber(nStr, {
@@ -884,7 +942,7 @@ define([
           });
         }
         return nStr;
-      }
+      }*/
     });
 
     return clazz;

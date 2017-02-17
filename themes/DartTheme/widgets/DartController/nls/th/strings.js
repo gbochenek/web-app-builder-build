@@ -1,5 +1,3 @@
-﻿define(
-   ({
-    _widgetLabel: "ตัวควบคุมดาร์ท"
-  })
-);
+define({
+  "_widgetLabel": "ตัวควบคุมดาร์ท"
+});

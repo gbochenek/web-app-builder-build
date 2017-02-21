@@ -9,7 +9,7 @@ Adapted from build scripts provided by @qlqllu at https://geonet.esri.com/docs/D
 3.    npm install
 4.    cd buildScripts
 5.    npm install
-6.    build.bat
+6.    node build.js
 
 The completed build will be located in buildOutput and can be hosted in the same way as any freshly downloaded Web App Builder Application.
 

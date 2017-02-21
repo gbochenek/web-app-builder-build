@@ -20,7 +20,5 @@ How to run?
       |_util
     |_buildScripts
 ```
-* Open `cmd`, cd folder `buildScripts`, run `npm install`, then run `build.bat`.
+* Open `cmd`, cd folder `buildScripts`, run `npm install`, then run `node build.js`.
 * Waiting for the build process to complete. The build output will be available at `<app folder>/buildOutput` folder.
-
-**Please note that bacause there is no ArcGIS JavaScript API source code available, there will be some errors when building, but the output works.**

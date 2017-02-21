@@ -1,11 +1,12 @@
-  {
-    "name": "arcgis-js-api-webappbuilder",
-    "version": "1.0.0",
-    "dependencies": {
-      "esri": "arcgis-js-api#3.14"
-    },
-    "resolutions": {
-      "dojo": "v1.10.4/esri-3.14.0"
-    }
+{
+  "name": "arcgis-js-api-webappbuilder",
+  "version": "1.0.0",
+  "dependencies": {
+    "esri": "arcgis-js-api#3.19"
+  },
+  "resolutions": {
+    "dojo": "v1.11.2/esri-3.19.0",
+    "dijit": "v1.11.2/esri-3.19.0",
+    "dojox": "v1.11.2/esri-3.19.0"
   }
-  
+}
